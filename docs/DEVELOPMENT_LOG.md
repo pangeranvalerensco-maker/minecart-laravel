@@ -251,5 +251,30 @@ Jurnal ini mencatat setiap langkah, keputusan desain, dan progres implementasi s
 - Rute terdaftar: 11 rute terdaftar dengan benar.
 - Menjalankan `php artisan optimize:clear` untuk membersihkan cache bootstrap dan kompilasi template.
 
+## Sprint 5: Checkout & Transactional Order Processing
+**Tujuan**: Mengimplementasikan proses checkout yang aman, pengiriman kalkulasi server-side, simulasi metode pembayaran, penyimpanan ke database melalui transaksi yang mencegah race condition.
 
+### Daftar Pekerjaan:
+1. **Migration & Model Order**:
+   - Membuat migration `orders` (id, fullname, phone, address, city, postal_code, subtotal, shipping_cost, total, payment_method, dll).
+   - Membuat migration `order_items` dengan snapshoting (product_id, product_name, price, quantity, subtotal).
+   - Membuat model `Order` dan `OrderItem` beserta relasinya.
+2. **Kalkulasi Ongkos Kirim (ShippingService)**:
+   - Membuat `App\Services\ShippingService` sebagai kalkulator ongkir dinamis yang bersifat deterministik di sisi server.
+   - Mengubah rujukan legacy ongkir Javascript menjadi logika server-side (flat-rate Intra-kota, Intra-provinsi, Luar-provinsi berdasarkan pemetaan nama kota).
+3. **Checkout Controller**:
+   - Menambahkan rute `/checkout` (index, store, success).
+   - `CheckoutController@index`: Merender tampilan daftar produk keranjang (memvalidasi stok server-side) dan form pengiriman.
+   - `CheckoutController@store`: Memproses form dengan aman. Semua perhitugan total biaya bergantung pada data base Product dan `ShippingService` asli, mencegah price-spoofing dari pihak klien.
+   - **Transaksi & Locking**: Membungkus operasi penyisipan dan pemotongan stok dengan `DB::transaction`. Menambahkan `lockForUpdate()` pada row produk untuk mencegah *race conditions* selama pengurangan persediaan. (Dibuat kondisional untuk environment SQLite automated testing).
+   - Menangani `RuntimeException` apabila stok tidak mencukupi atau kuantitas cacat, mengirim error log dengan `Log::error` pada *unhandled Exceptions*.
+4. **Halaman Frontend Checkout & Sukses**:
+   - Merancang halaman `checkout/index.blade.php` dengan UI responsif.
+   - Membuat halaman ringkasan `checkout/success.blade.php` pasca penyelesaian pembayaran.
+5. **Testing**:
+   - Membuat file `CheckoutTest.php` untuk meng-cover seluruh business logic: validasi stok, rollback transaksi, penanganan error form, nullablility *courier_note*, keranjang kosong, pengujian unit fungsi logistik, dsb.
 
+### Hasil Pengujian & Pembersihan:
+- Status Test Suite Keseluruhan: **36 Passed (158 Assertions)**
+- Route terdaftar lengkap sesuai scope migrasi.
+- Proses checkout dikonfirmasi bebas manipulasi harga/stok dari klien.

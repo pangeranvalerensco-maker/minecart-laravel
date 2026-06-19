@@ -133,16 +133,19 @@ Menyimpan ringkasan transaksi pesanan setelah checkout sukses.
 | Nama Kolom | Tipe Data | Atribut | Deskripsi |
 | :--- | :--- | :--- | :--- |
 | `id` | `BIGINT` | Primary Key, Auto Increment | Identifier unik pesanan |
+| `order_number` | `VARCHAR(255)`| Not Null, Unique | Nomor pesanan unik (MCT-...) |
 | `fullname` | `VARCHAR(150)`| Not Null | Nama lengkap penerima |
 | `phone` | `VARCHAR(20)` | Not Null | Nomor telepon penerima |
 | `address` | `TEXT` | Not Null | Alamat pengiriman lengkap |
 | `city` | `VARCHAR(100)`| Not Null | Kota tujuan pengiriman |
 | `postal_code`| `VARCHAR(10)` | Not Null | Kode pos pengiriman |
+| `courier_note`| `TEXT` | Nullable | Catatan untuk kurir pengiriman |
 | `subtotal` | `BIGINT` | Not Null | Total harga semua item sebelum ongkir |
 | `shipping_cost`| `BIGINT` | Not Null | Ongkos kirim yang dihitung |
 | `total` | `BIGINT` | Not Null | Total biaya transaksi (subtotal + ongkir) |
 | `payment_method`| `VARCHAR(50)`| Not Null | Metode pembayaran (Transfer, COD, dll.) |
-| `status` | `VARCHAR(30)` | Not Null, Default: 'pending'| Status pesanan (pending, paid, completed) |
+| `payment_status`| `VARCHAR(50)`| Not Null, Default: 'paid' | Status pembayaran |
+| `status` | `VARCHAR(30)` | Not Null, Default: 'processing'| Status pesanan (processing, dll) |
 | `created_at` | `TIMESTAMP` | Nullable | Tanggal transaksi dibuat |
 | `updated_at` | `TIMESTAMP` | Nullable | Tanggal transaksi diperbarui |
 
@@ -150,16 +153,19 @@ Menyimpan ringkasan transaksi pesanan setelah checkout sukses.
 ```php
 Schema::create('orders', function (Blueprint $table) {
     $table->id();
-    $table->string('fullname', 150);
-    $table->string('phone', 20);
+    $table->string('order_number')->unique();
+    $table->string('fullname');
+    $table->string('phone');
     $table->text('address');
-    $table->string('city', 100);
+    $table->string('city');
     $table->string('postal_code', 10);
+    $table->text('courier_note')->nullable();
     $table->bigInteger('subtotal');
     $table->bigInteger('shipping_cost');
     $table->bigInteger('total');
-    $table->string('payment_method', 50);
-    $table->string('status', 30)->default('pending');
+    $table->string('payment_method');
+    $table->string('payment_status')->default('paid');
+    $table->string('status')->default('processing');
     $table->timestamps();
 });
 ```
@@ -167,15 +173,17 @@ Schema::create('orders', function (Blueprint $table) {
 ---
 
 ### D. Tabel `order_items`
-Menyimpan rincian produk yang dibeli di setiap transaksi.
+Menyimpan rincian produk yang dibeli di setiap transaksi sebagai "snapshot" agar harga historis tidak berubah bila harga produk diperbarui di masa depan.
 
 | Nama Kolom | Tipe Data | Atribut | Deskripsi |
 | :--- | :--- | :--- | :--- |
 | `id` | `BIGINT` | Primary Key, Auto Increment | Identifier unik detail item |
 | `order_id` | `BIGINT` | Foreign Key | Relasi ke `orders.id` (cascade on delete) |
-| `product_id` | `BIGINT` | Foreign Key | Relasi ke `products.id` (restrict on delete) |
+| `product_id` | `BIGINT` | Foreign Key | Relasi ke `products.id` (set null on delete) |
+| `product_name` | `VARCHAR(255)`| Not Null | Nama produk saat transaksi (snapshot) |
+| `price` | `BIGINT` | Not Null | Harga satuan produk pada saat transaksi (snapshot) |
 | `quantity` | `INTEGER` | Not Null | Jumlah barang yang dibeli |
-| `price` | `BIGINT` | Not Null | Harga satuan produk pada saat transaksi |
+| `subtotal` | `BIGINT` | Not Null | Subtotal per item (price * quantity) |
 | `created_at` | `TIMESTAMP` | Nullable | Tanggal data dibuat |
 | `updated_at` | `TIMESTAMP` | Nullable | Tanggal data diperbarui |
 
@@ -184,9 +192,11 @@ Menyimpan rincian produk yang dibeli di setiap transaksi.
 Schema::create('order_items', function (Blueprint $table) {
     $table->id();
     $table->foreignId('order_id')->constrained()->onDelete('cascade');
-    $table->foreignId('product_id')->constrained()->onDelete('restrict');
+    $table->foreignId('product_id')->nullable()->constrained()->onDelete('set null');
+    $table->string('product_name');
+    $table->bigInteger('price');
     $table->integer('quantity');
-    $table->bigInteger('price'); // Menyimpan harga historis saat order dibuat
+    $table->bigInteger('subtotal');
     $table->timestamps();
 });
 ```

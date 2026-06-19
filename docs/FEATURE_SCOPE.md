@@ -60,18 +60,18 @@ Dalam migrasi ke Laravel, 11 file HTML lama akan dikonsolidasikan dan dipetakan 
 - **Pilih Semua (Select All)**: Checkbox untuk mencentang seluruh item atau item tertentu saja yang ingin diproses ke checkout.
 - **Simulasi Alamat & Ongkir**: Pengguna mengisi form alamat pengiriman. Sistem menghitung ongkos kirim secara dinamis di server berdasarkan kota asal produk vs kota tujuan (menggunakan basis data ongkir flat-rate dari file JS lama).
 
-### E. Checkout & Simulasi Pembayaran
-- **Data Pesanan**: Menampilkan daftar item terpilih, alamat pengiriman yang dimasukkan di halaman keranjang, dan rincian total biaya.
+### E. Checkout & Simulasi Pembayaran ✅ [SELESAI]
+- **Data Pesanan**: Menampilkan daftar item terpilih, alamat pengiriman yang dimasukkan di halaman keranjang, dan rincian total biaya. (Harga, ongkir, total, dan validasi stok seluruhnya dihitung aman secara server-side).
 - **Metode Pembayaran**: Opsi pembayaran simulasi (Transfer Bank, COD, E-Wallet).
 - **Proses Transaksi**: Setelah tombol "Selesaikan Pembayaran" diklik:
   1. Melakukan transaksi database (DB transaction) untuk mencegah inkonsistensi.
-  2. Memeriksa ketersediaan stok produk terbaru.
+  2. Memeriksa ketersediaan stok produk terbaru (memanfaatkan locking).
   3. Mengurangi stok produk di tabel `products`.
-  4. Menyimpan data order ke `orders` dan `order_items`.
+  4. Menyimpan data order ke `orders` dan `order_items` (menyimpan snapshot nama produk dan harga).
   5. Menghapus item yang dibeli dari session keranjang.
   6. Mengarahkan pengguna ke halaman transaksi berhasil.
 
-### F. Halaman Transaksi Berhasil (Order Success)
+### F. Halaman Transaksi Berhasil (Order Success) ✅ [SELESAI]
 - Menampilkan pesan sukses bertema pixel-art MineCraft khas.
 - Menampilkan ID Transaksi, detail item yang dipesan, dan total pembayaran.
 - Redirect otomatis kembali ke Beranda setelah beberapa detik, dilengkapi dengan audio soundeffect MineCart (`minecart-sound.m4a`) yang dimainkan saat pemuatan halaman sukses.
