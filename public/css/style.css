@@ -910,17 +910,29 @@ a.product-card-link { /* Mengatur link pembungkus agar fleksibel */
     overflow: hidden;
     display: flex; /* Menjadikan kartu sebagai flex container */
     flex-direction: column; /* Mengatur item dari atas ke bawah */
-    width: 100%; /* Memastikan kartu mengisi seluruh ruang link */
+    width: 100%; /* Memastikan kartu mengisi seluruh ruang grid */
     transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none !important;
 }
-.product-card:hover { /* --- Efek Hover untuk Kartu Produk & Tombol Beli --- */
+.product-card:hover { /* --- Efek Hover untuk Kartu Produk --- */
     transform: translateY(-5px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.07);
 }
-.product-card img { /* Aturan untuk GAMBAR di dalam Kartu */
+.product-image-link {
+    display: block;
     width: 100%;
     height: 220px;
+    overflow: hidden;
+    text-decoration: none;
+}
+.product-image-link img { /* Aturan untuk GAMBAR di dalam Kartu */
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
+}
+.product-image-link:hover img {
+    transform: scale(1.05);
 }
 .product-card-body { /* Aturan untuk KONTEN di Dalam Kartu */
     padding: 15px;
@@ -931,11 +943,21 @@ a.product-card-link { /* Mengatur link pembungkus agar fleksibel */
 }
 .product-card-body h3 {
     font-size: 1rem;
-    color: var(--heading-color);
     margin: 0 0 10px 0;
     white-space: nowrap; /* Mencegah teks pindah ke baris baru */
     overflow: hidden; /* Sembunyikan teks yang terlalu panjang */
     text-overflow: ellipsis; /* Tampilkan elipsis (...) untuk teks yang terpotong */
+}
+.product-title-link {
+    color: var(--heading-color);
+    text-decoration: none !important;
+}
+.product-title-link:visited {
+    color: var(--heading-color);
+}
+.product-title-link:hover {
+    color: var(--accent-color);
+    text-decoration: none !important;
 }
 .product-card-body .description {
     font-size: 0.9rem;
@@ -944,19 +966,27 @@ a.product-card-link { /* Mengatur link pembungkus agar fleksibel */
     overflow: hidden; /* Sembunyikan teks yang terlalu panjang */
     display: -webkit-box; /* Membuat elemen menjadi kotak fleksibel */
     -webkit-box-orient: vertical; /* Mengatur orientasi kotak fleksibel ke vertikal */
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    height: 4.8em; /* Konsistensi tinggi 3 baris deskripsi (1.6 line-height * 3) */
+    line-height: 1.6;
 }
 .product-card-footer { /* Aturan untuk FOOTER Kartu */
     display: flex;
+    flex-wrap: wrap; /* Fleksibel untuk ukuran layar kecil */
     justify-content: space-between; /* Mendorong elemen ke kiri dan kanan */
     align-items: center;
+    gap: 10px;
     padding: 15px;
     border-top: 1px solid var(--subtle-border-color);
     margin-top: auto; /* Mendorong footer ke bawah */
 }
 .product-card-footer .price {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     font-weight: bold;
     color: var(--accent-color);
+    white-space: nowrap; /* Mencegah Rp dan nominal terpisah/pecah baris */
+    flex: 1 1 auto;
 }
 .product-card-footer .buy-btn {
     padding: 8px 16px;
@@ -966,6 +996,14 @@ a.product-card-link { /* Mengatur link pembungkus agar fleksibel */
     border-radius: 5px;
     cursor: pointer;
     font-weight: 500;
+    white-space: nowrap; /* Mencegah teks pecah baris */
+    text-align: center;
+    flex: 1 1 auto;
+    transition: opacity 0.2s;
+}
+.product-card-footer .buy-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 .see-more-container {
     text-align: center;

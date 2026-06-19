@@ -35,20 +35,33 @@
     <div class="container">
         <h2 class="rekom-mobile" data-translate-key="featured-title">Produk Rekomendasi</h2>
         <div class="product-grid">
-            <!-- 4 Skeleton/Placeholder cards untuk mempertahankan grid legacy -->
-            @for ($i = 0; $i < 4; $i++)
-            <a href="#" class="product-card skeleton-card">
-                <div class="skeleton-image-wrapper" style="height: 200px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.05);">
-                    <img src="{{ asset('assets/logo-minecart.png') }}" alt="Placeholder Product" style="filter: grayscale(1); opacity: 0.3; height: 80px; object-fit: contain;">
+            @forelse ($recommendedProducts as $product)
+            <article class="product-card">
+                <a href="#" class="product-image-link">
+                    <img src="{{ asset($product->images[0] ?? 'assets/logo-minecart.png') }}" alt="{{ $product->title_id }}">
+                </a>
+                <div class="product-card-body">
+                    <h3>
+                        <a href="#" class="product-title-link" data-title-id="{{ $product->title_id }}" data-title-en="{{ $product->title_en }}">
+                            {{ $product->title_id }}
+                        </a>
+                    </h3>
+                    <p class="description" data-description-id="{{ $product->description_id }}" data-description-en="{{ $product->description_en }}">
+                        {{ $product->description_id }}
+                    </p>
                 </div>
-                <h3 data-translate-key="loading-product">Memuat...</h3>
-                <p class="product-description" data-translate-key="loading-description">Deskripsi produk sedang dimuat...</p>
-                <p class="price">Rp -</p>
                 <div class="product-card-footer">
-                    <button class="buy-btn" disabled data-translate-key="buy-button">Tambah ke Keranjang</button>
+                    <span class="price">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                    <button class="buy-btn" disabled data-product-id="{{ $product->id }}" data-translate-key="buy-button">Tambah ke Keranjang</button>
                 </div>
-            </a>
-            @endfor
+            </article>
+            @empty
+            <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px 20px;">
+                <img src="{{ asset('assets/logo-minecart.png') }}" alt="Empty State" style="filter: grayscale(1); opacity: 0.3; height: 100px; margin-bottom: 20px;">
+                <p style="font-family: var(--font-heading); font-size: 1rem; color: var(--text-color); margin-bottom: 10px;">Tidak Ada Produk Rekomendasi</p>
+                <p style="font-size: 0.9rem; color: var(--text-color); opacity: 0.7;">Silakan jalankan seeder untuk mengisi data produk.</p>
+            </div>
+            @endforelse
         </div>
         <div class="see-more-container">
             <!-- Tombol untuk melihat lebih banyak produk -->

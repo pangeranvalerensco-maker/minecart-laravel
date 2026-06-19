@@ -69,3 +69,63 @@ Jurnal ini mencatat setiap langkah, keputusan desain, dan progres implementasi s
    - Memverifikasi tampilan responsif pada rentang 1440px (desktop), 1024px (tablet landscape), 768px (tablet portrait/mobile menu active), dan 375px (mobile standar).
 4. **Pembersihan Teks CS Popup**:
    - Mengganti teks mock DIVDIK dengan instruksi bantuan resmi: *"Butuh bantuan? Hubungi tim MineCart melalui informasi kontak yang tersedia."*
+
+---
+
+## [2026-06-19] Sprint 2: Database Kategori, Produk, dan Rekomendasi Dinamis
+
+### Pekerjaan yang Dilakukan:
+1. **Migrasi Database**:
+   - Membuat migrasi `create_categories_table` dengan atribut `id`, `name`, dan `slug` (unik).
+   - Membuat migrasi `create_products_table` dengan relasi `category_id` (foreign key nullable), `title_id`, `title_en`, `description_id`, `description_en`, `price` (bigInteger), `stock` (integer), `images` (json), `seller_name` (nullable), `address`, dan `is_recommended` (boolean).
+   - Menjalankan migrasi secara bersih ke database PostgreSQL lokal.
+
+2. **Pembuatan Model**:
+   - Membuat model `Category` dengan relasi `hasMany` ke `Product`.
+   - Membuat model `Product` dengan relasi `belongsTo` ke `Category` serta menerapkan Eloquent casting (`images => array`, `is_recommended => boolean`, `price => integer`, `stock => integer`).
+
+3. **Penyusunan Seeders & Aset Lokal**:
+   - Membuat `CategorySeeder` untuk menginisialisasi 6 kategori bisnis secara teratur.
+   - Mengunduh dan menempatkan aset produk legacy ke folder `public/assets/products/` sehingga seeder berjalan sepenuhnya lokal tanpa dependensi API eksternal.
+   - Membuat `ProductSeeder` yang menanam 16 produk dengan data deterministik dari `api_response.json` (termasuk 10 produk dengan `is_recommended = true`).
+   - Menghapus berkas `api_response.json` dari root proyek agar tidak masuk riwayat Git.
+
+4. **Integrasi Controller & Rendering Beranda**:
+   - Memperbarui `HomeController@index` untuk mengambil maksimal 8 produk rekomendasi dengan eager loading relasi `category`.
+   - Mengubah `home.blade.php` untuk merender data produk secara dinamis menggunakan `@forelse` dengan penanganan empty state (menampilkan informasi database kosong) dan membuang skeleton card statis.
+   - Mengatur atribut HTML `data-title-id`, `data-title-en`, `data-description-id`, dan `data-description-en` pada struktur kartu produk untuk mendukung lokalisasi dinamis.
+
+5. **Pembaruan Translasi Klien**:
+   - Memodifikasi berkas [ui.js](file:///e:/E-Commerce%20Projects/minecart-laravel/public/js/ui.js) pada fungsi `translateUI` agar mendeteksi kartu produk dinamis dan mengganti teks judul serta deskripsi produk saat tombol bahasa diubah secara real-time.
+
+6. **Penyusunan dan Pengujian Test Suite**:
+   - Menambahkan pengujian fitur baru di `tests/Feature/ExampleTest.php` untuk memastikan:
+     - Halaman beranda memuat dengan status 200.
+     - Produk rekomendasi dirender dengan format harga dan nama yang tepat sesuai database.
+     - Produk non-rekomendasi tidak dimuat di bagian rekomendasi.
+     - Penanganan empty state berfungsi dengan baik saat tidak ada produk di database.
+   - Menjalankan pengujian fungsional dan unit testing via `php artisan test` dengan hasil sukses (`PASS`).
+
+### Hasil Tinker & Pengujian:
+- Jumlah Kategori (`Category::count()`): **6**
+- Jumlah Produk (`Product::count()`): **16**
+- Jumlah Produk Rekomendasi (`Product::where('is_recommended', true)->count()`): **10**
+- Status Test Suite: **4 Passed (8 Assertions)**
+
+### Perbaikan Pasca-Audit Sprint 2:
+1. **Restrukturisasi Kartu Produk**:
+   - Menghapus pembungkus `<a>` yang melingkupi seluruh kartu produk (`.product-card`) demi validitas semantik HTML.
+   - Menambahkan tautan terpisah untuk gambar produk (`.product-image-link`) dan judul produk (`.product-title-link`) dengan nilai `#` sementara.
+   - Mengatur styling agar tidak ada garis bawah (`text-decoration: none`) pada judul, deskripsi, harga, maupun tombol, serta mencegah warna ungu visited link.
+2. **Desain Footer Kartu & Keterbacaan Harga**:
+   - Menerapkan `flex-wrap: wrap` dan `gap: 10px` pada footer kartu untuk responsivitas layout flexbox.
+   - Mengatur `white-space: nowrap` pada elemen `.price` dan tombol `.buy-btn` untuk menjamin kesatuan teks "Rp [Nominal]" dan teks tombol agar tidak pecah/wrap berantakan di layar kecil.
+   - Menerapkan tinggi kartu yang konsisten di semua resolusi grid.
+3. **Pembatasan Baris Deskripsi**:
+   - Menerapkan `-webkit-line-clamp: 3` beserta property `height: 4.8em` pada deskripsi produk untuk membatasi panjang teks maksimal 3 baris secara rapi dan seragam.
+4. **Optimasi Gambar Produk**:
+   - Memastikan rasio aspek gambar tetap terjaga dengan `object-fit: cover` pada `.product-image-link img` dan menambahkan efek micro-animation transisi zoom halus saat hover.
+5. **Pembaruan Data Seeder**:
+   - Mengganti produk "Serum Pencerah Wajah" (merchandise) dengan "Mouse Gaming RGB" (gaming-accessories) agar relevan dengan 6 kategori bisnis MineCart, menggunakan aset lokal `product-5.jpg` yang sesuai.
+   - Menambahkan `Product::query()->delete();` di awal seeder untuk memastikan proses seeding bersih, aman, dan tidak menduplikasi data saat dijalankan berulang kali.
+

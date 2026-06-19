@@ -187,7 +187,20 @@ function translateUI(lang) {
     if (mobileLangLink) {
         mobileLangLink.textContent = lang === 'en' ? 'Bahasa Indonesia' : 'English';
     }
-    
+
+    // Terjemahan nama dan deskripsi produk di semua kartu produk dinamis
+    document.querySelectorAll('.product-card').forEach(card => {
+        const titleEl = card.querySelector('[data-title-id]');
+        const descEl = card.querySelector('[data-description-id]');
+
+        if (titleEl && titleEl.dataset.titleId && titleEl.dataset.titleEn) {
+            titleEl.textContent = lang === 'id' ? titleEl.dataset.titleId : titleEl.dataset.titleEn;
+        }
+        if (descEl && descEl.dataset.descriptionId && descEl.dataset.descriptionEn) {
+            descEl.textContent = lang === 'id' ? descEl.dataset.descriptionId : descEl.dataset.descriptionEn;
+        }
+    });
+
     document.title = translations[lang]['page-title-home'] || 'MineCart';
 }
 
