@@ -129,3 +129,34 @@ Jurnal ini mencatat setiap langkah, keputusan desain, dan progres implementasi s
    - Mengganti produk "Serum Pencerah Wajah" (merchandise) dengan "Mouse Gaming RGB" (gaming-accessories) agar relevan dengan 6 kategori bisnis MineCart, menggunakan aset lokal `product-5.jpg` yang sesuai.
    - Menambahkan `Product::query()->delete();` di awal seeder untuk memastikan proses seeding bersih, aman, dan tidak menduplikasi data saat dijalankan berulang kali.
 
+---
+
+## [2026-06-19] Sprint 3: Halaman Katalog dan Detail Produk
+
+### Pekerjaan yang Dilakukan:
+1. **Pembuatan ProductController**:
+   - Menambahkan berkas `ProductController.php` dengan aksi `index()` untuk mengelola pencarian produk, filter berdasarkan kategori slug, dan sorting dinamis (`price_asc/desc`, `name_asc/desc`, `stock_asc/desc`).
+   - Menambahkan aksi `show()` untuk menampilkan detail satu produk dan mengambil maksimal 4 produk terkait (`relatedProducts`) dari kategori yang sama.
+2. **Penyusunan Rute Baru**:
+   - Mendaftarkan rute `/products` (products.index) dan `/products/{product}` (products.show) di `web.php`.
+3. **Desain Tampilan Katalog (`products/index.blade.php`)**:
+   - Menampilkan daftar semua produk dalam grid.
+   - Mengintegrasikan filter kategori menggunakan `<button>` dengan inline redirection agar mempertahankan style legacy MineCart.
+   - Menambahkan dropdown sort untuk mengubah urutan produk secara instan.
+   - Menyediakan empty state ber-ilustrasi jika hasil pencarian atau filter kosong.
+4. **Desain Tampilan Detail (`products/show.blade.php`)**:
+   - Menampilkan layout detail produk dengan galeri thumbnail interaktif menggunakan script JS sederhana untuk mengganti gambar utama.
+   - Menampilkan informasi lengkap produk (judul, kategori, harga, stok, nama/alamat toko) dan maksimal 4 produk sejenis di section rekomendasi bawah.
+5. **Integrasi Navigasi & Tautan**:
+   - Mengarahkan pencarian header, tombol "Semua Produk", "Lihat Semua Produk", dan "Lihat Lainnya" ke rute `products.index`.
+   - Mengarahkan kartu produk homepage ke rute detail masing-masing (`products.show`).
+6. **Lokalisasi Multibahasa Dinamis**:
+   - Memodifikasi `ui.js` untuk menambahkan terjemahan detail produk dan memperbarui judul browser tab secara dinamis di seluruh halaman katalog dan detail produk.
+7. **Penyusunan Test Suite**:
+   - Menambahkan pengujian fitur katalog: verifikasi muatan halaman katalog, fungsionalitas pencarian kata kunci, filter kategori, pengurutan (sorting), tampilan detail, serta pengujian status 404 jika ID produk tidak valid.
+
+### Hasil Pengujian:
+- Status Test Suite: **10 Passed (34 Assertions)**
+- Rute terdaftar: `/products` dan `/products/{product}`
+
+

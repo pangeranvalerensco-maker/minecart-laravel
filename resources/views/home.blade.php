@@ -24,7 +24,7 @@
         <!-- Teks yang ditampilkan di atas gambar slide -->
         <h1 data-translate-key="hero-title">Koleksi Terbaru Musim Ini</h1>
         <p data-translate-key="hero-subtitle">Temukan gaya terbaik Anda dengan produk pilihan berkualitas tinggi.</p>
-        <a href="#" class="cta-button" data-translate-key="hero-cta">Lihat Semua Produk</a>
+        <a href="{{ route('products.index') }}" class="cta-button" data-translate-key="hero-cta">Lihat Semua Produk</a>
     </div>
     <button id="prevBtn" class="carousel-btn prev">&#10094;</button> <!-- Tombol ke slide sebelumnya -->
     <button id="nextBtn" class="carousel-btn next">&#10095;</button> <!-- Tombol ke slide berikutnya -->
@@ -37,12 +37,12 @@
         <div class="product-grid">
             @forelse ($recommendedProducts as $product)
             <article class="product-card">
-                <a href="#" class="product-image-link">
+                <a href="{{ route('products.show', $product) }}" class="product-image-link">
                     <img src="{{ asset($product->images[0] ?? 'assets/logo-minecart.png') }}" alt="{{ $product->title_id }}">
                 </a>
                 <div class="product-card-body">
                     <h3>
-                        <a href="#" class="product-title-link" data-title-id="{{ $product->title_id }}" data-title-en="{{ $product->title_en }}">
+                        <a href="{{ route('products.show', $product) }}" class="product-title-link" data-title-id="{{ $product->title_id }}" data-title-en="{{ $product->title_en }}">
                             {{ $product->title_id }}
                         </a>
                     </h3>
@@ -65,7 +65,7 @@
         </div>
         <div class="see-more-container">
             <!-- Tombol untuk melihat lebih banyak produk -->
-            <a href="#" class="cta-button" data-translate-key="see-more-btn">Lihat Lainnya</a>
+            <a href="{{ route('products.index') }}" class="cta-button" data-translate-key="see-more-btn">Lihat Lainnya</a>
         </div>
     </div>
 </section>

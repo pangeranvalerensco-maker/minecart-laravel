@@ -55,8 +55,8 @@
                     <span></span>
                 </button>
             </div>
-            <form class="search-bar" action="#" method="GET">
-                <input type="search" name="q" placeholder="Cari di MineCart..." data-translate-key="search-title" required>
+            <form class="search-bar" action="{{ route('products.index') }}" method="GET">
+                <input type="search" name="q" value="{{ request('q') }}" placeholder="Cari di MineCart..." data-translate-key="search-title" required>
                 <button type="submit" title="Cari" data-translate-key="search-btn"><img src="{{ asset('assets/logo-search.png') }}" alt="Cari"></button>
             </form>
 
@@ -70,9 +70,9 @@
                     <li class="mobile-only mobile-only-logged-in"><a href="#" data-translate-key="my-account">My Account</a></li>
                     <li class="mobile-only mobile-only-logged-in"><a href="#" id="logout-btn-mobile" data-translate-key="logout">Logout</a></li>
 
-                    <li><a href="#recommended" data-translate-key="recommended-title">Rekomendasi</a></li>
-                    <li><a href="{{ route('home') }}" data-translate-key="home-title" class="active">Beranda</a></li>
-                    <li><a href="#" data-translate-key="all-products-title">Semua Produk</a></li>
+                    <li><a href="{{ route('home') }}#recommended" data-translate-key="recommended-title">Rekomendasi</a></li>
+                    <li><a href="{{ route('home') }}" data-translate-key="home-title" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a></li>
+                    <li><a href="{{ route('products.index') }}" data-translate-key="all-products-title" class="{{ request()->routeIs('products.index') ? 'active' : '' }}">Semua Produk</a></li>
 
                     <!-- Tautan untuk halaman tentang dan bantuan (hanya terlihat di mobile) -->
                     <li class="mobile-only"><a href="#" data-translate-key="about-us-title">Tentang Kami</a></li>

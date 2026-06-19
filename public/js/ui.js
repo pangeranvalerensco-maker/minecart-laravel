@@ -31,7 +31,22 @@ const translations = {
         'search-btn': 'Cari',
         'cs-title': 'Customer Service',
         'cs-welcome': 'Selamat datang di MineCart Web! Temukan berbagai produk berkualitas tinggi dengan harga terbaik.',
-        'footer-title': '© 2025 MineCart. Dibuat oleh Pangeran Valerensco Rivaldi Hutabarat. Semua hak cipta dilindungi.'
+        'product-seller-title': 'Penjual:',
+        'seller-name-label': 'Nama Toko:',
+        'label-address': 'Alamat Toko:',
+        'related-products-title': 'Mungkin Anda Suka',
+        'product-stock-label': 'Stok:',
+        'all-categories': 'Semua',
+        'no-products-found': 'Tidak Ada Produk Ditemukan',
+        'no-products-found-desc': 'Coba gunakan kata kunci pencarian atau kategori lain.',
+        'no-related-products': 'Tidak ada produk terkait lainnya.',
+        'sort-title': 'Urutkan berdasarkan:',
+        'sort-price-asc': 'Harga: Terendah ke Tertinggi',
+        'sort-price-desc': 'Harga: Tertinggi ke Terendah',
+        'sort-name-asc': 'Nama: A-Z',
+        'sort-name-desc': 'Nama: Z-A',
+        'sort-stock-desc': 'Stok: Terbanyak',
+        'sort-stock-asc': 'Stok: Paling Sedikit'
     },
     en: {
         'page-title-home': 'MineCart - Homepage',
@@ -61,7 +76,23 @@ const translations = {
         'search-btn': 'Search',
         'cs-title': 'Welcome!!',
         'cs-welcome': 'Welcome to MineCart Web! Discover a wide range of high-quality products at the best prices.',
-        'footer-title': '© 2025 MineCart. Created by Pangeran Valerensco Rivaldi Hutabarat. All rights reserved.'
+        'footer-title': '© 2025 MineCart. Created by Pangeran Valerensco Rivaldi Hutabarat. All rights reserved.',
+        'product-seller-title': 'Seller:',
+        'seller-name-label': 'Shop Name:',
+        'label-address': 'Shop Address:',
+        'related-products-title': 'You May Also Like',
+        'product-stock-label': 'Stock:',
+        'all-categories': 'All',
+        'no-products-found': 'No Products Found',
+        'no-products-found-desc': 'Try searching using other keywords or categories.',
+        'no-related-products': 'No other related products found.',
+        'sort-title': 'Sort by:',
+        'sort-price-asc': 'Price: Low to High',
+        'sort-price-desc': 'Price: High to Low',
+        'sort-name-asc': 'Name: A-Z',
+        'sort-name-desc': 'Name: Z-A',
+        'sort-stock-desc': 'Stock: Most',
+        'sort-stock-asc': 'Stock: Least'
     }
 };
 
@@ -201,7 +232,24 @@ function translateUI(lang) {
         }
     });
 
-    document.title = translations[lang]['page-title-home'] || 'MineCart';
+    // Terjemahan produk detail utama
+    const detailTitleEl = document.querySelector('.product-detail-info h1[data-title-id]');
+    const detailDescEl = document.querySelector('#product-description[data-description-id]');
+    if (detailTitleEl && detailTitleEl.dataset.titleId && detailTitleEl.dataset.titleEn) {
+        detailTitleEl.textContent = lang === 'id' ? detailTitleEl.dataset.titleId : detailTitleEl.dataset.titleEn;
+    }
+    if (detailDescEl && detailDescEl.dataset.descriptionId && detailDescEl.dataset.descriptionEn) {
+        detailDescEl.textContent = lang === 'id' ? detailDescEl.dataset.descriptionId : detailDescEl.dataset.descriptionEn;
+    }
+
+    // Update document.title dynamically
+    if (detailTitleEl && detailTitleEl.dataset.titleId && detailTitleEl.dataset.titleEn) {
+        document.title = 'MineCart - ' + (lang === 'id' ? detailTitleEl.dataset.titleId : detailTitleEl.dataset.titleEn);
+    } else if (document.querySelector('.all-products-page')) {
+        document.title = 'MineCart - ' + translations[lang]['all-products-title'];
+    } else {
+        document.title = translations[lang]['page-title-home'] || 'MineCart';
+    }
 }
 
 function initializeLanguageDropdown() {
