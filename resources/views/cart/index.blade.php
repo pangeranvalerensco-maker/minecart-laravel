@@ -87,9 +87,9 @@
                             <span>Total</span>
                             <span style="color: var(--accent-color);" id="total-price">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                         </p>
-                        <button class="cta-button" id="checkout-btn" disabled style="width: 100%; margin-top: 20px; cursor: not-allowed; opacity: 0.6;">
-                            Beli (<span id="total-items-btn">{{ $totalItems }}</span>)
-                        </button>
+                        <a href="{{ route('checkout.index') }}" class="cta-button" id="checkout-btn" style="width: 100%; margin-top: 20px; display: block; text-align: center; text-decoration: none;">
+                            Beli ({{ $totalItems }})
+                        </a>
                     </div>
                 </aside>
             @else
