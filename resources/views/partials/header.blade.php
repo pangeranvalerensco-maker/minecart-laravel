@@ -79,17 +79,24 @@
                     <li class="mobile-only"><a href="#" data-translate-key="help-title">Bantuan</a></li>
 
                     <!-- Keranjang belanja -->
+                    @php
+                        $headerCart = session()->get('cart', []);
+                        $headerCartCount = 0;
+                        foreach ($headerCart as $item) {
+                            $headerCartCount += $item['quantity'] ?? 0;
+                        }
+                    @endphp
                     <li class="cart-icon-wrapper">
-                        <a href="#" title="Keranjang Belanja" data-translate-key="cart-link-title">
+                        <a href="{{ route('cart.index') }}" title="Keranjang Belanja" data-translate-key="cart-link-title">
                             <img src="{{ asset('assets/logo-keranjang-gelap.png') }}" alt="Keranjang" class="icon-nav" id="cart-icon-img">
-                            <span id="cart-counter" class="cart-counter visible">0</span>
+                            <span id="cart-counter" class="cart-counter visible">{{ $headerCartCount }}</span>
                             <span class="cart-text-mobile">Keranjang Belanja</span>
                         </a>
 
                         <div id="cart-preview-dropdown" class="cart-preview">
                             <div class="cart-preview-header">
-                                <h4 id="cart-preview-title">Keranjang Belanja (0)</h4>
-                                <a href="#" id="cart-preview-view-link" data-translate-key="view-cart-btn">Lihat Keranjang</a>
+                                <h4 id="cart-preview-title">Keranjang Belanja ({{ $headerCartCount }})</h4>
+                                <a href="{{ route('cart.index') }}" id="cart-preview-view-link" data-translate-key="view-cart-btn">Lihat Keranjang</a>
                             </div>
                             <div id="cart-preview-items">
                                 <!-- Tempat untuk menampilkan item di keranjang (kosong untuk sementara) -->

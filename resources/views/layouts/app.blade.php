@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>MineCart - @yield('title', 'Beranda')</title>
     <link rel="icon" href="{{ asset('assets/logo-minecart.png') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -53,5 +54,19 @@
         };
     </script>
     <script src="{{ asset('js/ui.js') }}"></script>
+    <script src="{{ asset('js/cart-actions.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            @if (session('success'))
+                showToast("{{ session('success') }}", 'success');
+            @endif
+            @if (session('error'))
+                showToast("{{ session('error') }}", 'error');
+            @endif
+            @if (session('warning'))
+                showToast("{{ session('warning') }}", 'warning');
+            @endif
+        });
+    </script>
 </body>
 </html>

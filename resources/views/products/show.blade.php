@@ -41,10 +41,13 @@
                     <p><strong data-translate-key="label-address">Alamat Toko:</strong> <span>{{ $product->address }}</span></p>
                 </div>
 
-                <!-- Add to Cart Button (disabled for now) -->
-                <button id="add-to-cart-btn" class="cta-button" disabled data-translate-key="buy-button" style="cursor: not-allowed; opacity: 0.6; margin-top: 2rem;">
-                    Tambah ke Keranjang
-                </button>
+                <!-- Add to Cart Button -->
+                <form action="{{ route('cart.add', $product) }}" method="POST" class="js-add-to-cart-form" style="margin-top: 2rem; display: block;">
+                    @csrf
+                    <button type="submit" id="add-to-cart-btn" class="cta-button" {{ $product->stock <= 0 ? 'disabled style=cursor:not-allowed;opacity:0.6;' : '' }} data-translate-key="buy-button">
+                        Tambah ke Keranjang
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -70,7 +73,10 @@
                         </div>
                         <div class="product-card-footer">
                             <span class="price">Rp {{ number_format($related->price, 0, ',', '.') }}</span>
-                            <button class="buy-btn" disabled data-product-id="{{ $related->id }}" data-translate-key="buy-button">Tambah ke Keranjang</button>
+                            <form action="{{ route('cart.add', $related) }}" method="POST" class="js-add-to-cart-form" style="margin: 0; display: inline-flex; flex: 1 1 auto; justify-content: flex-end;">
+                                @csrf
+                                <button type="submit" class="buy-btn" {{ $related->stock <= 0 ? 'disabled' : '' }} data-product-id="{{ $related->id }}" data-translate-key="buy-button" style="width: 100%;">Tambah ke Keranjang</button>
+                            </form>
                         </div>
                     </article>
                     @empty

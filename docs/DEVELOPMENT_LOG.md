@@ -159,4 +159,97 @@ Jurnal ini mencatat setiap langkah, keputusan desain, dan progres implementasi s
 - Status Test Suite: **10 Passed (34 Assertions)**
 - Rute terdaftar: `/products` dan `/products/{product}`
 
+---
+
+## [2026-06-19] Sprint 4: Keranjang Belanja Berbasis Laravel Session
+
+### Pekerjaan yang Dilakukan:
+1. **Pembuatan CartController**:
+   - Menambahkan aksi `index()` untuk memetakan produk dari PostgreSQL berdasarkan item keranjang di session, menghitung subtotal per item, subtotal total, serta total kuantitas barang.
+   - Menambahkan aksi `add()` untuk menambah produk ke session dengan validasi stok (produk dengan stok 0 ditolak, penambahan di atas stok maksimum secara otomatis dibatasi ke stok maksimum disertai warning).
+   - Menambahkan aksi `update()` untuk memperbarui kuantitas (minimal 1 dan maksimal sesuai stok produk).
+   - Menambahkan aksi `remove()` untuk menghapus item tertentu dari session keranjang.
+   - Menambahkan aksi `clear()` untuk menghapus/mengosongkan seluruh session keranjang belanja.
+2. **Rute Keranjang Belanja**:
+   - Mendaftarkan rute keranjang: `GET /cart`, `POST /cart/add/{product}`, `PATCH /cart/update/{product}`, `DELETE /cart/remove/{product}`, dan `DELETE /cart/clear`.
+3. **Desain Halaman Keranjang (`cart/index.blade.php`)**:
+   - Menampilkan layout keranjang belanja `.cart-section` lengkap dengan item list (gambar, nama, harga satuan, quantity controls `+` / `-`, subtotal per item, tombol Hapus).
+   - Menambahkan sidebar `.cart-summary` (subtotal total, kuantitas total, dan tombol Beli/Checkout disabled).
+   - Menyediakan tombol "Kosongkan Keranjang" di `.cart-header` dan visualisasi empty state jika keranjang kosong.
+4. **Integrasi UI & Header Badge**:
+   - Mengubah layout `app.blade.php` agar menangkap flash message Session Laravel (`success`, `error`, `warning`) dan menampilkannya sebagai notifikasi toast.
+   - Mengintegrasikan total kuantitas seluruh item dari session secara dinamis pada badge `cart-counter` di header navigasi.
+   - Mengubah tombol "Tambah ke Keranjang" pada home, katalog, dan detail produk menjadi form POST lengkap dengan `@csrf`, serta menonaktifkan tombol secara visual jika stok produk habis (<= 0).
+5. **Pengembangan Test Suite**:
+   - Menambahkan 8 feature tests di `ExampleTest.php` untuk memverifikasi fungsionalitas keranjang: akses halaman keranjang, penambahan produk, penolakan produk habis (stok 0), pembaruan kuantitas, pembatasan kuantitas sesuai stok, penghapusan produk, pengosongan keranjang, dan kalkulasi subtotal dari database.
+
+### Hasil Pengujian:
+- Status Test Suite: **18 Passed (56 Assertions)**
+- Rute terdaftar: 11 rute terdaftar dengan benar.
+
+---
+
+## [2026-06-19] Sprint 4: Perbaikan UX Keranjang Belanja dengan AJAX dan Vanilla JS
+
+### Pekerjaan yang Dilakukan:
+1. **Layout Utama**:
+   - Menambahkan `<meta name="csrf-token" content="{{ csrf_token() }}">` pada [app.blade.php](file:///e:/E-Commerce%20Projects/minecart-laravel/resources/views/layouts/app.blade.php) untuk otentikasi AJAX request.
+2. **Optimasi CartController@update**:
+   - Memodifikasi method `update()` di [CartController.php](file:///e:/E-Commerce%20Projects/minecart-laravel/app/Http/Controllers/CartController.php) agar mendeteksi AJAX request (`expectsJson()`).
+   - Mengembalikan JSON berisi state keranjang terbaru: `success`, `message`, `product_id`, `quantity`, `item_subtotal`, `cart_total`, `cart_count`, dan `stock`.
+   - Menghitung semua harga dan subtotal dari database `Product` demi keamanan data.
+   - Membatasi kuantitas minimal 1 dan maksimal sesuai stock produk.
+3. **Penyelarasan View Keranjang (`cart/index.blade.php`)**:
+   - Mengubah tombol `+` dan `-` menjadi `type="button"` serta menambahkan atribut `data-product-id` dan `data-stock`.
+   - Menambahkan ID/selector yang jelas untuk quantity span, item subtotal, total items summary, total price, dan badge keranjang.
+   - Menyertakan fallback form dan `<noscript>` block sehingga tombol plus/minus tetap berfungsi secara konvensional (submit form & reload) jika Javascript dinonaktifkan di browser.
+   - Memuat file script `js/cart.js` secara eksklusif hanya di halaman keranjang belanja.
+4. **Implementasi Script AJAX (`public/js/cart.js`)**:
+   - Membuat modular script [cart.js](file:///e:/E-Commerce%20Projects/minecart-laravel/public/js/cart.js) untuk meng-intercept klik tombol `+` dan `-`.
+   - Mengirim request PATCH via `fetch()` dengan menyertakan token CSRF.
+   - Memperbarui DOM secara asinkron tanpa reload halaman (kuantitas item, subtotal item, total harga keseluruhan, badge keranjang di header, dan dropdown keranjang).
+   - Menonaktifkan tombol sementara request sedang dikirim agar mencegah double-click asinkron.
+   - Memberikan proteksi batas kuantitas minimum (1) dan maksimum (stok produk) secara client-side dan server-side, serta memicu notifikasi toast via `showToast()`.
+5. **Feature Test Tambahan**:
+   - Menambahkan `test_cart_quantity_ajax_update_success_and_validations` di [ExampleTest.php](file:///e:/E-Commerce%20Projects/minecart-laravel/tests/Feature/ExampleTest.php) untuk memverifikasi response JSON 200, update session keranjang, dan validasi capping batas stok produk.
+
+### Hasil Pengujian & Pembersihan:
+- Status Test Suite: **19 Passed (70 Assertions)**
+- Rute terdaftar: 11 rute terdaftar dengan benar.
+- Menjalankan `php artisan optimize:clear` untuk membersihkan seluruh cache aplikasi.
+
+---
+
+## [2026-06-19] Sprint 4: AJAX Global untuk Penambahan Produk ke Keranjang
+
+### Pekerjaan yang Dilakukan:
+1. **Pembaruan CartController@add**:
+   - Memodifikasi method `add()` di [CartController.php](file:///e:/E-Commerce%20Projects/minecart-laravel/app/Http/Controllers/CartController.php) agar mendeteksi AJAX request.
+   - Mengembalikan data state asinkron: `success`, `message`, `product_id`, `product_quantity`, `cart_count`, dan `stock`.
+   - Mengembalikan HTTP status `400` untuk penambahan produk yang stoknya habis (0).
+   - Menghitung kuantitas kumulatif di server-side serta melakukan pembatasan (cap) sesuai batas stok aktual produk di database.
+2. **Pembaruan Form View**:
+   - Menambahkan class `.js-add-to-cart-form` pada form penambahan produk di:
+     - [home.blade.php](file:///e:/E-Commerce%20Projects/minecart-laravel/resources/views/home.blade.php) (rekomendasi produk di homepage)
+     - [index.blade.php](file:///e:/E-Commerce%20Projects/minecart-laravel/resources/views/products/index.blade.php) (catalog produk)
+     - [show.blade.php](file:///e:/E-Commerce%20Projects/minecart-laravel/resources/views/products/show.blade.php) (detail utama & produk rekomendasi terkait)
+   - Mempertahankan tipe tombol `type="submit"` dan token `@csrf` agar fallback konvensional tetap bekerja jika JavaScript dimatikan.
+3. **Pemuatan Script Global**:
+   - Mendaftarkan file script global [cart-actions.js](file:///e:/E-Commerce%20Projects/minecart-laravel/public/js/cart-actions.js) pada master layout [app.blade.php](file:///e:/E-Commerce%20Projects/minecart-laravel/resources/views/layouts/app.blade.php).
+4. **Implementasi `public/js/cart-actions.js`**:
+   - Meng-intercept event `submit` dari `.js-add-to-cart-form` dengan `preventDefault()`.
+   - Melakukan request POST asinkron via `fetch()`.
+   - Menonaktifkan tombol submit selama request berlangsung.
+   - Memperbarui badge total item di header (`#cart-counter` & `#cart-preview-title`) secara dinamis.
+   - Menampilkan notifikasi `showToast()` bertipe `success`, `warning` (jika kuantitas dibatasi), atau `error` (jika request gagal atau stok habis).
+   - Menerapkan micro-interaction: mengubah teks tombol sementara menjadi "Ditambahkan" selama 1 detik setelah penambahan berhasil.
+5. **Feature Test Tambahan**:
+   - Menambahkan method pengujian `test_cart_ajax_add_success_and_validations` di [ExampleTest.php](file:///e:/E-Commerce%20Projects/minecart-laravel/tests/Feature/ExampleTest.php) untuk memverifikasi response JSON, kalkulasi kuantitas kumulatif, penolakan stok habis dengan kode HTTP 400, dan pembatasan stok maks.
+
+### Hasil Pengujian & Pembersihan:
+- Status Test Suite: **20 Passed (84 Assertions)**
+- Rute terdaftar: 11 rute terdaftar dengan benar.
+- Menjalankan `php artisan optimize:clear` untuk membersihkan cache bootstrap dan kompilasi template.
+
+
 

@@ -56,7 +56,10 @@
                     </div>
                     <div class="product-card-footer">
                         <span class="price">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
-                        <button class="buy-btn" disabled data-product-id="{{ $product->id }}" data-translate-key="buy-button">Tambah ke Keranjang</button>
+                        <form action="{{ route('cart.add', $product) }}" method="POST" class="js-add-to-cart-form" style="margin: 0; display: inline-flex; flex: 1 1 auto; justify-content: flex-end;">
+                            @csrf
+                            <button type="submit" class="buy-btn" {{ $product->stock <= 0 ? 'disabled' : '' }} data-product-id="{{ $product->id }}" data-translate-key="buy-button" style="width: 100%;">Tambah ke Keranjang</button>
+                        </form>
                     </div>
                 </article>
                 @empty

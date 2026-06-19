@@ -288,4 +288,443 @@ class ExampleTest extends TestCase
         $response = $this->get('/products/999999');
         $response->assertStatus(404);
     }
+
+    /**
+     * Test that the cart page can be accessed.
+     */
+    public function test_cart_page_can_be_accessed(): void
+    {
+        $response = $this->get('/cart');
+        $response->assertStatus(200);
+        $response->assertSee('Keranjang Belanja');
+    }
+
+    /**
+     * Test that a product can be added to the cart.
+     */
+    public function test_product_can_be_added_to_cart(): void
+    {
+        $category = \App\Models\Category::create(['name' => 'Cat 1', 'slug' => 'cat-1']);
+        $product = \App\Models\Product::create([
+            'category_id' => $category->id,
+            'title_id' => 'Produk A',
+            'title_en' => 'Product A',
+            'description_id' => 'Desc A',
+            'description_en' => 'Desc A',
+            'price' => 10000,
+            'stock' => 10,
+            'images' => ['assets/products/product-1.jpg'],
+            'seller_name' => 'Seller A',
+            'address' => 'Addr A',
+            'is_recommended' => false,
+        ]);
+
+        $response = $this->post('/cart/add/' . $product->id, ['quantity' => 2]);
+        $response->assertRedirect();
+        
+        $cart = session('cart');
+        $this->assertNotNull($cart);
+        $this->assertEquals(2, $cart[$product->id]['quantity']);
+    }
+
+    /**
+     * Test that a product with 0 stock cannot be added to the cart.
+     */
+    public function test_out_of_stock_product_cannot_be_added_to_cart(): void
+    {
+        $category = \App\Models\Category::create(['name' => 'Cat 1', 'slug' => 'cat-1']);
+        $product = \App\Models\Product::create([
+            'category_id' => $category->id,
+            'title_id' => 'Produk Habis',
+            'title_en' => 'Out of stock',
+            'description_id' => 'Desc',
+            'description_en' => 'Desc',
+            'price' => 10000,
+            'stock' => 0,
+            'images' => ['assets/products/product-1.jpg'],
+            'seller_name' => 'Seller A',
+            'address' => 'Addr A',
+            'is_recommended' => false,
+        ]);
+
+        $response = $this->post('/cart/add/' . $product->id, ['quantity' => 1]);
+        $response->assertRedirect();
+        $response->assertSessionHas('error', 'Stok tidak cukup.');
+
+        $cart = session('cart');
+        $this->assertTrue(empty($cart));
+    }
+
+    /**
+     * Test that the quantity of a cart item can be updated.
+     */
+    public function test_cart_quantity_can_be_updated(): void
+    {
+        $category = \App\Models\Category::create(['name' => 'Cat 1', 'slug' => 'cat-1']);
+        $product = \App\Models\Product::create([
+            'category_id' => $category->id,
+            'title_id' => 'Produk A',
+            'title_en' => 'Product A',
+            'description_id' => 'Desc A',
+            'description_en' => 'Desc A',
+            'price' => 10000,
+            'stock' => 10,
+            'images' => ['assets/products/product-1.jpg'],
+            'seller_name' => 'Seller A',
+            'address' => 'Addr A',
+            'is_recommended' => false,
+        ]);
+
+        // Put in session first
+        session()->put('cart', [
+            $product->id => [
+                'product_id' => $product->id,
+                'quantity' => 1
+            ]
+        ]);
+
+        $response = $this->patch('/cart/update/' . $product->id, ['quantity' => 5]);
+        $response->assertRedirect();
+
+        $cart = session('cart');
+        $this->assertEquals(5, $cart[$product->id]['quantity']);
+    }
+
+    /**
+     * Test that cart quantity cannot exceed stock.
+     */
+    public function test_cart_quantity_cannot_exceed_stock(): void
+    {
+        $category = \App\Models\Category::create(['name' => 'Cat 1', 'slug' => 'cat-1']);
+        $product = \App\Models\Product::create([
+            'category_id' => $category->id,
+            'title_id' => 'Produk A',
+            'title_en' => 'Product A',
+            'description_id' => 'Desc A',
+            'description_en' => 'Desc A',
+            'price' => 10000,
+            'stock' => 5,
+            'images' => ['assets/products/product-1.jpg'],
+            'seller_name' => 'Seller A',
+            'address' => 'Addr A',
+            'is_recommended' => false,
+        ]);
+
+        // Attempt to add 10 (exceeds stock of 5)
+        $response = $this->post('/cart/add/' . $product->id, ['quantity' => 10]);
+        $response->assertRedirect();
+        $response->assertSessionHas('warning');
+
+        $cart = session('cart');
+        $this->assertEquals(5, $cart[$product->id]['quantity']); // Limited to stock
+
+        // Attempt to update to 12 (exceeds stock of 5)
+        $response = $this->patch('/cart/update/' . $product->id, ['quantity' => 12]);
+        $response->assertRedirect();
+        $response->assertSessionHas('warning');
+
+        $cart = session('cart');
+        $this->assertEquals(5, $cart[$product->id]['quantity']); // Limited to stock
+    }
+
+    /**
+     * Test that an item can be removed from the cart.
+     */
+    public function test_item_can_be_removed_from_cart(): void
+    {
+        $category = \App\Models\Category::create(['name' => 'Cat 1', 'slug' => 'cat-1']);
+        $product = \App\Models\Product::create([
+            'category_id' => $category->id,
+            'title_id' => 'Produk A',
+            'title_en' => 'Product A',
+            'description_id' => 'Desc A',
+            'description_en' => 'Desc A',
+            'price' => 10000,
+            'stock' => 10,
+            'images' => ['assets/products/product-1.jpg'],
+            'seller_name' => 'Seller A',
+            'address' => 'Addr A',
+            'is_recommended' => false,
+        ]);
+
+        session()->put('cart', [
+            $product->id => [
+                'product_id' => $product->id,
+                'quantity' => 2
+            ]
+        ]);
+
+        $response = $this->delete('/cart/remove/' . $product->id);
+        $response->assertRedirect();
+
+        $cart = session('cart');
+        $this->assertFalse(isset($cart[$product->id]));
+    }
+
+    /**
+     * Test that the cart can be cleared.
+     */
+    public function test_cart_can_be_cleared(): void
+    {
+        $category = \App\Models\Category::create(['name' => 'Cat 1', 'slug' => 'cat-1']);
+        $product = \App\Models\Product::create([
+            'category_id' => $category->id,
+            'title_id' => 'Produk A',
+            'title_en' => 'Product A',
+            'description_id' => 'Desc A',
+            'description_en' => 'Desc A',
+            'price' => 10000,
+            'stock' => 10,
+            'images' => ['assets/products/product-1.jpg'],
+            'seller_name' => 'Seller A',
+            'address' => 'Addr A',
+            'is_recommended' => false,
+        ]);
+
+        session()->put('cart', [
+            $product->id => [
+                'product_id' => $product->id,
+                'quantity' => 2
+            ]
+        ]);
+
+        $response = $this->delete('/cart/clear');
+        $response->assertRedirect();
+
+        $this->assertFalse(session()->has('cart'));
+    }
+
+    /**
+     * Test that cart subtotal is calculated correctly based on product database price.
+     */
+    public function test_subtotal_is_calculated_correctly_from_database(): void
+    {
+        $category = \App\Models\Category::create(['name' => 'Cat 1', 'slug' => 'cat-1']);
+        $productA = \App\Models\Product::create([
+            'category_id' => $category->id,
+            'title_id' => 'Produk A',
+            'title_en' => 'Product A',
+            'description_id' => 'Desc A',
+            'description_en' => 'Desc A',
+            'price' => 150000,
+            'stock' => 10,
+            'images' => ['assets/products/product-1.jpg'],
+            'seller_name' => 'Seller A',
+            'address' => 'Addr A',
+            'is_recommended' => false,
+        ]);
+        $productB = \App\Models\Product::create([
+            'category_id' => $category->id,
+            'title_id' => 'Produk B',
+            'title_en' => 'Product B',
+            'description_id' => 'Desc B',
+            'description_en' => 'Desc B',
+            'price' => 50000,
+            'stock' => 10,
+            'images' => ['assets/products/product-2.jpg'],
+            'seller_name' => 'Seller B',
+            'address' => 'Addr B',
+            'is_recommended' => false,
+        ]);
+
+        session()->put('cart', [
+            $productA->id => [
+                'product_id' => $productA->id,
+                'quantity' => 2 // subtotal A = 300,000
+            ],
+            $productB->id => [
+                'product_id' => $productB->id,
+                'quantity' => 3 // subtotal B = 150,000
+            ]
+        ]);
+
+        $response = $this->get('/cart');
+        $response->assertStatus(200);
+        $response->assertSee('Rp 450.000'); // total = 450,000
+    }
+
+    /**
+     * Test that AJAX cart updates return proper JSON and correct calculations.
+     */
+    public function test_cart_quantity_ajax_update_success_and_validations(): void
+    {
+        $category = \App\Models\Category::create(['name' => 'Cat 1', 'slug' => 'cat-1']);
+        $product = \App\Models\Product::create([
+            'category_id' => $category->id,
+            'title_id' => 'Produk A',
+            'title_en' => 'Product A',
+            'description_id' => 'Desc A',
+            'description_en' => 'Desc A',
+            'price' => 100000,
+            'stock' => 5,
+            'images' => ['assets/products/product-1.jpg'],
+            'seller_name' => 'Seller A',
+            'address' => 'Addr A',
+            'is_recommended' => false,
+        ]);
+
+        // Place item in cart
+        session()->put('cart', [
+            $product->id => [
+                'product_id' => $product->id,
+                'quantity' => 1
+            ]
+        ]);
+
+        // Send AJAX PATCH request to update quantity to 3
+        $response = $this->patch('/cart/update/' . $product->id, [
+            'quantity' => 3
+        ], [
+            'Accept' => 'application/json'
+        ]);
+
+        // Assert response status 200 and exact JSON structure
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'success',
+            'message',
+            'product_id',
+            'quantity',
+            'item_subtotal',
+            'cart_total',
+            'cart_count',
+            'stock'
+        ]);
+
+        // Assert exact JSON contents
+        $response->assertJson([
+            'success' => true,
+            'product_id' => $product->id,
+            'quantity' => 3,
+            'item_subtotal' => 300000,
+            'cart_total' => 300000,
+            'cart_count' => 3,
+            'stock' => 5
+        ]);
+
+        // Assert session quantity updated
+        $cart = session('cart');
+        $this->assertEquals(3, $cart[$product->id]['quantity']);
+
+        // Now test quantity exceeding stock (attempt to update to 10, stock is 5)
+        $responseExceed = $this->patch('/cart/update/' . $product->id, [
+            'quantity' => 10
+        ], [
+            'Accept' => 'application/json'
+        ]);
+
+        $responseExceed->assertStatus(200);
+        $responseExceed->assertJson([
+            'success' => false, // returns false indicating warning/stock cap occurred
+            'product_id' => $product->id,
+            'quantity' => 5, // capped to stock
+            'item_subtotal' => 500000,
+            'cart_total' => 500000,
+            'cart_count' => 5,
+            'stock' => 5
+        ]);
+
+        // Assert session quantity capped to 5
+        $cartExceed = session('cart');
+        $this->assertEquals(5, $cartExceed[$product->id]['quantity']);
+    }
+
+    /**
+     * Test that AJAX product add to cart returns proper JSON and correct validation caps/errors.
+     */
+    public function test_cart_ajax_add_success_and_validations(): void
+    {
+        $category = \App\Models\Category::create(['name' => 'Cat 1', 'slug' => 'cat-1']);
+        $product = \App\Models\Product::create([
+            'category_id' => $category->id,
+            'title_id' => 'Produk A',
+            'title_en' => 'Product A',
+            'description_id' => 'Desc A',
+            'description_en' => 'Desc A',
+            'price' => 100000,
+            'stock' => 5,
+            'images' => ['assets/products/product-1.jpg'],
+            'seller_name' => 'Seller A',
+            'address' => 'Addr A',
+            'is_recommended' => false,
+        ]);
+
+        // 1. Successful POST add with JSON Accept
+        $response = $this->post('/cart/add/' . $product->id, [
+            'quantity' => 2
+        ], [
+            'Accept' => 'application/json'
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'success',
+            'message',
+            'product_id',
+            'product_quantity',
+            'cart_count',
+            'stock'
+        ]);
+
+        $response->assertJson([
+            'success' => true,
+            'product_id' => $product->id,
+            'product_quantity' => 2,
+            'cart_count' => 2,
+            'stock' => 5
+        ]);
+
+        $cart = session('cart');
+        $this->assertEquals(2, $cart[$product->id]['quantity']);
+
+        // 2. Capped quantity test (attempt to add 5 more, making it 7 which exceeds stock of 5)
+        $responseExceed = $this->post('/cart/add/' . $product->id, [
+            'quantity' => 5
+        ], [
+            'Accept' => 'application/json'
+        ]);
+
+        $responseExceed->assertStatus(200);
+        $responseExceed->assertJson([
+            'success' => false, // capped warning
+            'product_id' => $product->id,
+            'product_quantity' => 5, // capped to stock
+            'cart_count' => 5,
+            'stock' => 5
+        ]);
+
+        $cartExceed = session('cart');
+        $this->assertEquals(5, $cartExceed[$product->id]['quantity']);
+
+        // 3. Out of stock test (stock is 0)
+        $outOfStockProduct = \App\Models\Product::create([
+            'category_id' => $category->id,
+            'title_id' => 'Produk Habis',
+            'title_en' => 'Out of stock Product',
+            'description_id' => 'Desc',
+            'description_en' => 'Desc',
+            'price' => 50000,
+            'stock' => 0,
+            'images' => ['assets/products/product-2.jpg'],
+            'seller_name' => 'Seller B',
+            'address' => 'Addr B',
+            'is_recommended' => false,
+        ]);
+
+        $responseOOS = $this->post('/cart/add/' . $outOfStockProduct->id, [
+            'quantity' => 1
+        ], [
+            'Accept' => 'application/json'
+        ]);
+
+        $responseOOS->assertStatus(400); // 400 Bad Request error
+        $responseOOS->assertJson([
+            'success' => false,
+            'message' => 'Stok tidak cukup.',
+            'product_id' => $outOfStockProduct->id,
+            'product_quantity' => 0,
+            'cart_count' => 5, // still matches the capped count of previous test
+            'stock' => 0
+        ]);
+    }
 }
