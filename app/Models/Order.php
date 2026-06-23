@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Order extends Model
 {
     protected $fillable = [
+        'user_id',
         'order_number',
         'fullname',
         'phone',
@@ -22,6 +23,14 @@ class Order extends Model
         'payment_status',
         'status',
     ];
+
+    /**
+     * Get the user that owns the order.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     protected $casts = [
         'subtotal' => 'integer',

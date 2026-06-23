@@ -47,31 +47,31 @@
 
                         <div style="margin-bottom: 12px;">
                             <label for="fullname" style="display: block; font-size: 0.85rem; margin-bottom: 4px; font-weight: 500;">Nama Lengkap *</label>
-                            <input type="text" id="fullname" name="fullname" value="{{ old('fullname') }}" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
+                            <input type="text" id="fullname" name="fullname" value="{{ old('fullname', $user->name ?? '') }}" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
                             @error('fullname') <p style="color: #e63946; font-size: 0.8rem; margin: 4px 0 0;">{{ $message }}</p> @enderror
                         </div>
 
                         <div style="margin-bottom: 12px;">
                             <label for="phone" style="display: block; font-size: 0.85rem; margin-bottom: 4px; font-weight: 500;">Nomor Telepon *</label>
-                            <input type="text" id="phone" name="phone" value="{{ old('phone') }}" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
+                            <input type="text" id="phone" name="phone" value="{{ old('phone', $user->phone ?? '') }}" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
                             @error('phone') <p style="color: #e63946; font-size: 0.8rem; margin: 4px 0 0;">{{ $message }}</p> @enderror
                         </div>
 
                         <div style="margin-bottom: 12px;">
                             <label for="address" style="display: block; font-size: 0.85rem; margin-bottom: 4px; font-weight: 500;">Alamat Lengkap *</label>
-                            <textarea id="address" name="address" rows="3" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; resize: vertical; box-sizing: border-box;">{{ old('address') }}</textarea>
+                            <textarea id="address" name="address" rows="3" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; resize: vertical; box-sizing: border-box;">{{ old('address', $user->address ?? '') }}</textarea>
                             @error('address') <p style="color: #e63946; font-size: 0.8rem; margin: 4px 0 0;">{{ $message }}</p> @enderror
                         </div>
 
                         <div style="display: flex; gap: 12px; margin-bottom: 12px;">
                             <div style="flex: 1;">
                                 <label for="city" style="display: block; font-size: 0.85rem; margin-bottom: 4px; font-weight: 500;">Kota *</label>
-                                <input type="text" id="city" name="city" value="{{ old('city') }}" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
+                                <input type="text" id="city" name="city" value="{{ old('city', $user->city ?? '') }}" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
                                 @error('city') <p style="color: #e63946; font-size: 0.8rem; margin: 4px 0 0;">{{ $message }}</p> @enderror
                             </div>
                             <div style="width: 120px;">
                                 <label for="postal_code" style="display: block; font-size: 0.85rem; margin-bottom: 4px; font-weight: 500;">Kode Pos *</label>
-                                <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code') }}" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
+                                <input type="text" id="postal_code" name="postal_code" value="{{ old('postal_code', $user->postal_code ?? '') }}" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
                                 @error('postal_code') <p style="color: #e63946; font-size: 0.8rem; margin: 4px 0 0;">{{ $message }}</p> @enderror
                             </div>
                         </div>

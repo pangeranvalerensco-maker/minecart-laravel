@@ -31,11 +31,21 @@
                         </div>
                     </li>
                     <li id="account-menu">
-                        <!-- Menu akun simulasi statis (akan diisi oleh JS/Blade jika user login di tahap berikutnya) -->
+                        @guest
                         <div class="is-logged-out" id="account-menu-desktop">
-                            <a href="#" class="btn btn-secondary" data-translate-key="login">Masuk</a>
-                            <a href="#" class="btn btn-primary" data-translate-key="register">Daftar</a>
+                            <a href="{{ route('login') }}" class="btn btn-secondary" data-translate-key="login">Masuk</a>
+                            <a href="{{ route('register') }}" class="btn btn-primary" data-translate-key="register">Daftar</a>
                         </div>
+                        @else
+                        <div class="is-logged-in" id="account-menu-desktop" style="display: flex; align-items: center; gap: 15px;">
+                            <span style="font-weight: 500; font-size: 0.9rem;">Halo, {{ explode(' ', auth()->user()->name)[0] }}</span>
+                            <a href="{{ route('account.index') }}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" data-translate-key="my-account">Akun Saya</a>
+                            <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
+                                @csrf
+                                <button type="submit" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem;" data-translate-key="logout">Logout</button>
+                            </form>
+                        </div>
+                        @endguest
                     </li>
                 </ul>
             </nav>
@@ -62,13 +72,20 @@
 
             <nav class="header-main-nav">
                 <ul>
+                    @guest
                     <!-- Tautan untuk masuk (hanya terlihat di mobile dan saat pengguna belum masuk) -->
-                    <li class="mobile-only mobile-only-logged-out"><a href="#" data-translate-key="login">Masuk</a></li>
-                    <li class="mobile-only mobile-only-logged-out"><a href="#" data-translate-key="register">Daftar</a></li>
-
+                    <li class="mobile-only"><a href="{{ route('login') }}" data-translate-key="login">Masuk</a></li>
+                    <li class="mobile-only"><a href="{{ route('register') }}" data-translate-key="register">Daftar</a></li>
+                    @else
                     <!-- Tautan untuk akun pengguna (hanya terlihat di mobile dan saat pengguna sudah masuk) -->
-                    <li class="mobile-only mobile-only-logged-in"><a href="#" data-translate-key="my-account">My Account</a></li>
-                    <li class="mobile-only mobile-only-logged-in"><a href="#" id="logout-btn-mobile" data-translate-key="logout">Logout</a></li>
+                    <li class="mobile-only"><a href="{{ route('account.index') }}" data-translate-key="my-account">Akun Saya</a></li>
+                    <li class="mobile-only">
+                        <form action="{{ route('logout') }}" method="POST" style="margin: 0; padding: 0;">
+                            @csrf
+                            <button type="submit" style="background: none; border: none; color: inherit; font-family: inherit; font-size: inherit; padding: 10px 15px; width: 100%; text-align: left; cursor: pointer; border-bottom: 1px solid var(--subtle-border-color);" data-translate-key="logout">Logout</button>
+                        </form>
+                    </li>
+                    @endguest
 
                     <li><a href="{{ route('home') }}#recommended" data-translate-key="recommended-title">Rekomendasi</a></li>
                     <li><a href="{{ route('home') }}" data-translate-key="home-title" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a></li>

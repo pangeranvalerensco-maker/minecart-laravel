@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\User;
 use App\Services\ShippingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -60,7 +61,8 @@ class CheckoutTest extends TestCase
 
     public function test_checkout_page_redirects_when_cart_empty(): void
     {
-        $response = $this->get('/checkout');
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get('/checkout');
         $response->assertRedirect(route('cart.index'));
         $response->assertSessionHas('error');
     }
@@ -70,7 +72,8 @@ class CheckoutTest extends TestCase
         $product = $this->createProduct();
         $this->seedCart([['product_id' => $product->id, 'quantity' => 2]]);
 
-        $response = $this->get('/checkout');
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get('/checkout');
         $response->assertStatus(200);
         $response->assertSee('Checkout');
         $response->assertSee('Produk Test');
@@ -86,7 +89,8 @@ class CheckoutTest extends TestCase
         $product = $this->createProduct(['stock' => 10, 'price' => 50000]);
         $this->seedCart([['product_id' => $product->id, 'quantity' => 3]]);
 
-        $response = $this->post('/checkout', [
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->post('/checkout', [
             'fullname' => 'John Doe',
             'phone' => '08123456789',
             'address' => 'Jl. Merdeka No. 1',
@@ -140,7 +144,8 @@ class CheckoutTest extends TestCase
         $product = $this->createProduct(['stock' => 2, 'price' => 50000]);
         $this->seedCart([['product_id' => $product->id, 'quantity' => 5]]);
 
-        $response = $this->post('/checkout', [
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->post('/checkout', [
             'fullname' => 'Jane Doe',
             'phone' => '08123456789',
             'address' => 'Jl. Test No. 1',
@@ -163,7 +168,8 @@ class CheckoutTest extends TestCase
 
     public function test_checkout_store_fails_with_empty_cart(): void
     {
-        $response = $this->post('/checkout', [
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->post('/checkout', [
             'fullname' => 'Jane Doe',
             'phone' => '08123456789',
             'address' => 'Jl. Test No. 1',
@@ -182,7 +188,8 @@ class CheckoutTest extends TestCase
         $product = $this->createProduct();
         $this->seedCart([['product_id' => $product->id, 'quantity' => 1]]);
 
-        $response = $this->post('/checkout', []);
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->post('/checkout', []);
 
         $response->assertSessionHasErrors([
             'fullname', 'phone', 'address', 'city', 'postal_code', 'payment_method',
@@ -196,7 +203,8 @@ class CheckoutTest extends TestCase
         $product = $this->createProduct();
         $this->seedCart([['product_id' => $product->id, 'quantity' => 1]]);
 
-        $response = $this->post('/checkout', [
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->post('/checkout', [
             'fullname' => 'Jane Doe',
             'phone' => '08123456789',
             'address' => 'Jl. Test No. 1',
@@ -229,7 +237,8 @@ class CheckoutTest extends TestCase
             ['product_id' => $productB->id, 'quantity' => 1], // subtotal = 200,000
         ]);
 
-        $response = $this->post('/checkout', [
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->post('/checkout', [
             'fullname' => 'Multi Buyer',
             'phone' => '08123456789',
             'address' => 'Jl. Merdeka No. 1',
@@ -261,7 +270,8 @@ class CheckoutTest extends TestCase
         $product = $this->createProduct(['stock' => 5, 'price' => 50000]);
         $this->seedCart([['product_id' => $product->id, 'quantity' => 1]]);
 
-        $response = $this->post('/checkout', [
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->post('/checkout', [
             'fullname' => 'No Note Buyer',
             'phone' => '08123456789',
             'address' => 'Jl. Tanpa Catatan No. 1',

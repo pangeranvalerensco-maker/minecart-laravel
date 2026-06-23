@@ -6,9 +6,23 @@ Dokumen ini mendefinisikan rancangan skema database PostgreSQL untuk aplikasi e-
 
 ```mermaid
 erDiagram
+    users ||--o{ orders : "has many"
     categories ||--o{ products : "has many"
     products ||--o{ order_items : "contained in"
     orders ||--o{ order_items : "has many"
+
+    users {
+        bigint id PK
+        string name
+        string email
+        string password
+        string phone
+        text address
+        string city
+        string postal_code
+        timestamp created_at
+        timestamp updated_at
+    }
 
     categories {
         bigint id PK
@@ -35,6 +49,7 @@ erDiagram
 
     orders {
         bigint id PK
+        bigint user_id FK
         string fullname
         string phone
         text address
@@ -64,7 +79,25 @@ erDiagram
 
 ## 2. Struktur Tabel & Migrasi
 
-### A. Tabel `categories`
+### A. Tabel `users`
+Menyimpan data pengguna (pelanggan).
+
+| Nama Kolom | Tipe Data | Atribut | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `id` | `BIGINT` | Primary Key, Auto Increment | Identifier unik user |
+| `name` | `VARCHAR(150)`| Not Null | Nama pengguna |
+| `email` | `VARCHAR(255)`| Not Null, Unique | Email pengguna |
+| `password` | `VARCHAR(255)`| Not Null | Password (hashed) |
+| `phone` | `VARCHAR(20)` | Nullable | Nomor telepon |
+| `address` | `TEXT` | Nullable | Alamat lengkap |
+| `city` | `VARCHAR(100)`| Nullable | Kota |
+| `postal_code`| `VARCHAR(10)` | Nullable | Kode pos |
+| `created_at` | `TIMESTAMP` | Nullable | Tanggal data dibuat |
+| `updated_at` | `TIMESTAMP` | Nullable | Tanggal data diperbarui |
+
+---
+
+### B. Tabel `categories`
 Menyimpan data kategori produk (misalnya: Pakaian, Elektronik, Buku).
 
 | Nama Kolom | Tipe Data | Atribut | Deskripsi |
@@ -133,6 +166,7 @@ Menyimpan ringkasan transaksi pesanan setelah checkout sukses.
 | Nama Kolom | Tipe Data | Atribut | Deskripsi |
 | :--- | :--- | :--- | :--- |
 | `id` | `BIGINT` | Primary Key, Auto Increment | Identifier unik pesanan |
+| `user_id` | `BIGINT` | Foreign Key, Nullable | Relasi ke `users.id` (nullOnDelete) |
 | `order_number` | `VARCHAR(255)`| Not Null, Unique | Nomor pesanan unik (MCT-...) |
 | `fullname` | `VARCHAR(150)`| Not Null | Nama lengkap penerima |
 | `phone` | `VARCHAR(20)` | Not Null | Nomor telepon penerima |
@@ -153,6 +187,7 @@ Menyimpan ringkasan transaksi pesanan setelah checkout sukses.
 ```php
 Schema::create('orders', function (Blueprint $table) {
     $table->id();
+    $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
     $table->string('order_number')->unique();
     $table->string('fullname');
     $table->string('phone');
@@ -205,7 +240,16 @@ Schema::create('order_items', function (Blueprint $table) {
 
 ## 3. Relasi Model Eloquent
 
-### 1. Model `Category`
+### 1. Model `User`
+```php
+class User extends Authenticatable {
+    public function orders() {
+        return $this->hasMany(Order::class);
+    }
+}
+```
+
+### 2. Model `Category`
 ```php
 class Category extends Model {
     public function products() {
@@ -231,16 +275,20 @@ class Product extends Model {
 }
 ```
 
-### 3. Model `Order`
+### 4. Model `Order`
 ```php
 class Order extends Model {
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+
     public function items() {
         return $this->hasMany(OrderItem::class);
     }
 }
 ```
 
-### 4. Model `OrderItem`
+### 5. Model `OrderItem`
 ```php
 class OrderItem extends Model {
     public function order() {

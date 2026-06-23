@@ -278,3 +278,32 @@ Jurnal ini mencatat setiap langkah, keputusan desain, dan progres implementasi s
 - Status Test Suite Keseluruhan: **36 Passed (158 Assertions)**
 - Route terdaftar lengkap sesuai scope migrasi.
 - Proses checkout dikonfirmasi bebas manipulasi harga/stok dari klien.
+
+## Sprint 6: Autentikasi dan Profil Pelanggan
+**Tujuan**: Menerapkan sistem otentikasi pengguna, manajemen profil, dan menghubungkan pesanan dengan akun pengguna.
+
+### Pekerjaan yang Dilakukan:
+1. **Database**:
+   - Menambahkan kolom profil ke tabel `users` (phone, address, city, postal_code).
+   - Menambahkan `user_id` ke tabel `orders` dengan relasi foreign key nullable (nullOnDelete).
+2. **Autentikasi**:
+   - Membuat `AuthController` untuk menangani register, login, dan logout.
+   - Memasang rute dan middleware (`guest`, `auth`) untuk mengamankan akses ke halaman autentikasi dan akun.
+   - Mengimplementasikan validasi register dan hashing password.
+   - Mengamankan auth redirect dengan Session `intended`.
+3. **View Autentikasi dan Header**:
+   - Merancang UI `login.blade.php` dan `register.blade.php`.
+   - Memperbarui `header.blade.php` untuk merender menu "Masuk / Daftar" atau "Akun Saya / Logout" secara adaptif.
+4. **Profil Akun**:
+   - Membuat `AccountController` dan `account/index.blade.php` untuk menampilkan dan memperbarui profil.
+5. **Integrasi Checkout**:
+   - Mengamankan `/checkout` (wajib login). Session keranjang dipertahankan setelah login.
+   - Auto-fill data checkout menggunakan profil pengguna.
+   - Menyimpan `user_id` pada transaksi pesanan baru.
+6. **Testing**:
+   - Menambahkan pengujian `AuthTest`, `AccountTest`, dan `CheckoutIntegrationTest`. Mengatasi error `warning` saat redirect AuthenticationException di `bootstrap/app.php`.
+
+### Hasil Pengujian & Pembersihan:
+- Status Test Suite Keseluruhan: **52 Passed (204 Assertions)**
+- Route terdaftar lengkap.
+- Mengatasi semua requirement tanpa library tambahan eksternal seperti Breeze/Jetstream sesuai instruksi sprint.

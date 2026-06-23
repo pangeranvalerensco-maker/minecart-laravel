@@ -24,6 +24,11 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Keranjang belanja kosong. Tambahkan produk terlebih dahulu.');
         }
 
+        // Only authenticated users can checkout
+        if (!auth()->check()) {
+            return redirect()->guest(route('login'))->with('warning', 'Silakan masuk terlebih dahulu untuk melakukan checkout.');
+        }
+
         $productIds = array_keys($cart);
         $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
 
@@ -59,7 +64,9 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Tidak ada produk valid di keranjang.');
         }
 
-        return view('checkout.index', compact('cartItems', 'subtotal', 'totalItems'));
+        $user = auth()->user();
+
+        return view('checkout.index', compact('cartItems', 'subtotal', 'totalItems', 'user'));
     }
 
     /**
@@ -142,6 +149,7 @@ class CheckoutController extends Controller
 
                 // Create the order
                 $order = Order::create([
+                    'user_id' => auth()->id(),
                     'order_number' => $orderNumber,
                     'fullname' => $validated['fullname'],
                     'phone' => $validated['phone'],
