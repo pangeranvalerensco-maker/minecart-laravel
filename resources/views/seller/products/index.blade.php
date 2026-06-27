@@ -12,7 +12,7 @@
             <nav class="account-nav">
                 <a href="{{ route('account.index') }}">Profil Saya</a>
                 <a href="{{ route('seller.products.index') }}" class="active">Produk Saya</a>
-                <a href="#">Pesanan Masuk</a>
+                <a href="{{ route('seller.orders.index') }}">Pesanan Masuk</a>
                 <form action="{{ route('logout') }}" method="POST" style="margin-top: auto;">
                     @csrf
                     <button type="submit" class="logout-btn">Logout</button>

@@ -79,6 +79,11 @@
                     @else
                     <!-- Tautan untuk akun pengguna (hanya terlihat di mobile dan saat pengguna sudah masuk) -->
                     <li class="mobile-only"><a href="{{ route('account.index') }}" data-translate-key="my-account">Akun Saya</a></li>
+                    @if(auth()->user()->is_seller)
+                        <li class="mobile-only"><a href="{{ route('seller.products.index') }}">Toko Saya</a></li>
+                    @else
+                        <li class="mobile-only"><a href="{{ route('store.create') }}">Buka Toko</a></li>
+                    @endif
                     <li class="mobile-only">
                         <form action="{{ route('logout') }}" method="POST" style="margin: 0; padding: 0;">
                             @csrf
@@ -90,6 +95,13 @@
                     <li><a href="{{ route('home') }}#recommended" data-translate-key="recommended-title">Rekomendasi</a></li>
                     <li><a href="{{ route('home') }}" data-translate-key="home-title" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a></li>
                     <li><a href="{{ route('products.index') }}" data-translate-key="all-products-title" class="{{ request()->routeIs('products.index') ? 'active' : '' }}">Semua Produk</a></li>
+                    @auth
+                        @if(auth()->user()->is_seller)
+                            <li><a href="{{ route('seller.products.index') }}" class="{{ request()->routeIs('seller.*') ? 'active' : '' }}">Toko Saya</a></li>
+                        @else
+                            <li><a href="{{ route('store.create') }}">Buka Toko</a></li>
+                        @endif
+                    @endauth
 
                     <!-- Tautan untuk halaman tentang dan bantuan (hanya terlihat di mobile) -->
                     <li class="mobile-only"><a href="{{ route('about') }}" data-translate-key="about-us-title">Tentang Kami</a></li>
