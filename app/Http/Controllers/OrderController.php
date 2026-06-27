@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 class OrderController extends Controller
 {
     public function index()
@@ -15,3 +13,4 @@ class OrderController extends Controller
             
         return view('account.orders', compact('orders'));
     }
+}

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
@@ -20,3 +19,4 @@ class OrderController extends Controller
 
         return view('seller.orders.index', compact('orderItems'));
     }
+}
