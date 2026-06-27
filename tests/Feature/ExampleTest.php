@@ -258,8 +258,11 @@ class ExampleTest extends TestCase
     public function test_product_detail_page_can_be_accessed(): void
     {
         $category = \App\Models\Category::create(['name' => 'Cat 1', 'slug' => 'cat-1']);
+        $user = \App\Models\User::factory()->create(['is_seller' => true, 'store_name' => 'Toko Varel']);
+
         $product = \App\Models\Product::create([
             'category_id' => $category->id,
+            'user_id' => $user->id,
             'title_id' => 'Detail Product A',
             'title_en' => 'Detail Product A',
             'description_id' => 'Deskripsi detail produk A',
@@ -267,7 +270,6 @@ class ExampleTest extends TestCase
             'price' => 150000,
             'stock' => 10,
             'images' => ['assets/products/product-1.jpg'],
-            'seller_name' => 'Toko Varel',
             'address' => 'Alamat Varel',
             'is_recommended' => false,
         ]);
@@ -319,7 +321,8 @@ class ExampleTest extends TestCase
             'is_recommended' => false,
         ]);
 
-        $response = $this->post('/cart/add/' . $product->id, ['quantity' => 2]);
+        $user = \App\Models\User::factory()->create();
+        $response = $this->actingAs($user)->post('/cart/add/' . $product->id, ['quantity' => 2]);
         $response->assertRedirect();
         
         $cart = session('cart');
@@ -347,7 +350,8 @@ class ExampleTest extends TestCase
             'is_recommended' => false,
         ]);
 
-        $response = $this->post('/cart/add/' . $product->id, ['quantity' => 1]);
+        $user = \App\Models\User::factory()->create();
+        $response = $this->actingAs($user)->post('/cart/add/' . $product->id, ['quantity' => 1]);
         $response->assertRedirect();
         $response->assertSessionHas('error', 'Stok tidak cukup.');
 
@@ -383,7 +387,8 @@ class ExampleTest extends TestCase
             ]
         ]);
 
-        $response = $this->patch('/cart/update/' . $product->id, ['quantity' => 5]);
+        $user = \App\Models\User::factory()->create();
+        $response = $this->actingAs($user)->patch('/cart/update/' . $product->id, ['quantity' => 5]);
         $response->assertRedirect();
 
         $cart = session('cart');
@@ -419,7 +424,8 @@ class ExampleTest extends TestCase
         $this->assertEquals(5, $cart[$product->id]['quantity']); // Limited to stock
 
         // Attempt to update to 12 (exceeds stock of 5)
-        $response = $this->patch('/cart/update/' . $product->id, ['quantity' => 12]);
+        $user = \App\Models\User::factory()->create();
+        $response = $this->actingAs($user)->patch('/cart/update/' . $product->id, ['quantity' => 12]);
         $response->assertRedirect();
         $response->assertSessionHas('warning');
 
@@ -454,7 +460,8 @@ class ExampleTest extends TestCase
             ]
         ]);
 
-        $response = $this->delete('/cart/remove/' . $product->id);
+        $user = \App\Models\User::factory()->create();
+        $response = $this->actingAs($user)->delete('/cart/remove/' . $product->id);
         $response->assertRedirect();
 
         $cart = session('cart');
@@ -488,7 +495,8 @@ class ExampleTest extends TestCase
             ]
         ]);
 
-        $response = $this->delete('/cart/clear');
+        $user = \App\Models\User::factory()->create();
+        $response = $this->actingAs($user)->delete('/cart/clear');
         $response->assertRedirect();
 
         $this->assertFalse(session()->has('cart'));
@@ -571,8 +579,9 @@ class ExampleTest extends TestCase
             ]
         ]);
 
+        $user = \App\Models\User::factory()->create();
         // Send AJAX PATCH request to update quantity to 3
-        $response = $this->patch('/cart/update/' . $product->id, [
+        $response = $this->actingAs($user)->patch('/cart/update/' . $product->id, [
             'quantity' => 3
         ], [
             'Accept' => 'application/json'
@@ -607,7 +616,7 @@ class ExampleTest extends TestCase
         $this->assertEquals(3, $cart[$product->id]['quantity']);
 
         // Now test quantity exceeding stock (attempt to update to 10, stock is 5)
-        $responseExceed = $this->patch('/cart/update/' . $product->id, [
+        $responseExceed = $this->actingAs($user)->patch('/cart/update/' . $product->id, [
             'quantity' => 10
         ], [
             'Accept' => 'application/json'
@@ -649,8 +658,9 @@ class ExampleTest extends TestCase
             'is_recommended' => false,
         ]);
 
+        $user = \App\Models\User::factory()->create();
         // 1. Successful POST add with JSON Accept
-        $response = $this->post('/cart/add/' . $product->id, [
+        $response = $this->actingAs($user)->post('/cart/add/' . $product->id, [
             'quantity' => 2
         ], [
             'Accept' => 'application/json'
@@ -678,7 +688,7 @@ class ExampleTest extends TestCase
         $this->assertEquals(2, $cart[$product->id]['quantity']);
 
         // 2. Capped quantity test (attempt to add 5 more, making it 7 which exceeds stock of 5)
-        $responseExceed = $this->post('/cart/add/' . $product->id, [
+        $responseExceed = $this->actingAs($user)->post('/cart/add/' . $product->id, [
             'quantity' => 5
         ], [
             'Accept' => 'application/json'
@@ -711,7 +721,7 @@ class ExampleTest extends TestCase
             'is_recommended' => false,
         ]);
 
-        $responseOOS = $this->post('/cart/add/' . $outOfStockProduct->id, [
+        $responseOOS = $this->actingAs($user)->post('/cart/add/' . $outOfStockProduct->id, [
             'quantity' => 1
         ], [
             'Accept' => 'application/json'

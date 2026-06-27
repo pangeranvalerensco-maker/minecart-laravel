@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class ProductSeeder extends Seeder
 {
@@ -228,11 +230,51 @@ class ProductSeeder extends Seeder
             ],
         ];
 
+        $apiDataPath = database_path('data/products.json');
+        $apiImagesMap = [];
+        if (file_exists($apiDataPath)) {
+            $apiData = json_decode(file_get_contents($apiDataPath), true);
+            foreach ($apiData as $apiItem) {
+                $apiImagesMap[$apiItem['titleId']] = $apiItem['images'] ?? [];
+            }
+        }
+
         foreach ($products as $item) {
             $catSlug = $item['category_slug'];
             unset($item['category_slug']);
             
             $item['category_id'] = $categories[$catSlug] ?? null;
+
+            // Use real API images if available
+            if (isset($apiImagesMap[$item['title_id']]) && count($apiImagesMap[$item['title_id']]) > 0) {
+                $item['images'] = $apiImagesMap[$item['title_id']];
+            } else {
+                if (isset($item['images']) && count($item['images']) > 0) {
+                    $img = $item['images'][0];
+                    $item['images'] = [$img, $img, $img, $img];
+                }
+            }
+
+            $sellerName = $item['seller_name'];
+            unset($item['seller_name']);
+
+            $seller = User::firstOrCreate(
+                ['email' => strtolower(str_replace(' ', '', $sellerName)) . '@seller.minecart.test'],
+                [
+                    'name' => $sellerName,
+                    'password' => Hash::make('password'),
+                    'phone' => '0800000000',
+                    'address' => $item['address'],
+                    'city' => 'Bandung',
+                    'postal_code' => '40000',
+                    'dob' => '1990-01-01',
+                    'gender' => 'male',
+                    'is_seller' => true,
+                    'store_name' => $sellerName,
+                ]
+            );
+
+            $item['user_id'] = $seller->id;
 
             Product::create($item);
         }

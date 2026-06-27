@@ -38,6 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
+                if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+
                 if (!response.ok) {
                     throw new Error('HTTP error ' + response.status);
                 }

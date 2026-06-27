@@ -6,7 +6,14 @@
 <main>
     <section class="all-products-page">
         <div class="container">
-            <h1 class="page-title" data-translate-key="all-products-title">Semua Produk</h1>
+            @if(request('q'))
+                <h1 class="page-title">
+                    <span data-translate-key="search-results-for">Hasil Pencarian untuk</span>
+                    "{{ request('q') }}"
+                </h1>
+            @else
+                <h1 class="page-title" data-translate-key="all-products-title">Semua Produk</h1>
+            @endif
             
             <!-- Category Filters -->
             <div id="category-filters" class="category-filters">

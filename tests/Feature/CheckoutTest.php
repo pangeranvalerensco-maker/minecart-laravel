@@ -112,7 +112,7 @@ class CheckoutTest extends TestCase
         $this->assertEquals('Bandung', $order->city);
         $this->assertEquals(150000, $order->subtotal); // 50000 * 3
         $this->assertEquals('bca_va', $order->payment_method);
-        $this->assertEquals('paid', $order->payment_status);
+        $this->assertEquals('pending', $order->payment_status);
         $this->assertEquals('processing', $order->status);
 
         // Assert shipping cost is calculated server-side (same city = 9000)
@@ -295,7 +295,8 @@ class CheckoutTest extends TestCase
 
     public function test_success_page_redirects_when_no_order(): void
     {
-        $response = $this->get('/checkout/success');
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get('/checkout/success');
         $response->assertRedirect(route('home'));
     }
 
@@ -328,7 +329,8 @@ class CheckoutTest extends TestCase
             'subtotal' => 100000,
         ]);
 
-        $response = $this->withSession(['last_order_id' => $order->id])
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->withSession(['last_order_id' => $order->id])
             ->get('/checkout/success');
 
         $response->assertStatus(200);

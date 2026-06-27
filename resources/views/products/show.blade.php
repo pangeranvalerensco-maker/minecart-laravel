@@ -37,7 +37,7 @@
                 <!-- Shop / Seller Info -->
                 <div class="product-location-info">
                     <h3 data-translate-key="product-seller-title">Penjual:</h3>
-                    <p><strong data-translate-key="seller-name-label">Nama Toko:</strong> <span>{{ $product->seller_name ?? 'MineCart Official' }}</span></p>
+                    <p><strong data-translate-key="seller-name-label">Nama Toko:</strong> <span>{{ optional($product->seller)->store_name ?? 'MineCart Official' }}</span></p>
                     <p><strong data-translate-key="label-address">Alamat Toko:</strong> <span>{{ $product->address }}</span></p>
                 </div>
 

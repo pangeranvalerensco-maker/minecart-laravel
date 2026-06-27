@@ -15,6 +15,14 @@
                 <div style="background-color: var(--card-bg); border: 1px solid var(--subtle-border-color); border-radius: 8px; padding: 20px;">
                     <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;">
                         <li><a href="{{ route('account.index') }}" style="color: var(--accent-color); font-weight: 500; text-decoration: none;">Profil Saya</a></li>
+                        <li><a href="{{ route('account.orders') }}" style="color: var(--text-color); font-weight: 500; text-decoration: none;">Riwayat Pesanan</a></li>
+                        <li>
+                            @if(auth()->user()->is_seller)
+                                <a href="{{ route('seller.products.index') }}" style="color: var(--text-color); font-weight: 500; text-decoration: none;">Toko Saya</a>
+                            @else
+                                <a href="{{ route('store.create') }}" style="color: var(--text-color); font-weight: 500; text-decoration: none;">Buka Toko</a>
+                            @endif
+                        </li>
                         <li>
                             <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
                                 @csrf
@@ -42,6 +50,28 @@
                             <label for="email" style="display: block; font-size: 0.85rem; margin-bottom: 4px; font-weight: 500;">Email *</label>
                             <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
                             @error('email') <p style="color: #e63946; font-size: 0.8rem; margin: 4px 0 0;">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                            <div style="flex: 1;">
+                                <label for="dob" style="display: block; font-size: 0.85rem; margin-bottom: 4px; font-weight: 500;" data-translate-key="label-dob">Tanggal Lahir</label>
+                                <input type="date" id="dob" name="dob" value="{{ old('dob', $user->dob ? \Carbon\Carbon::parse($user->dob)->format('Y-m-d') : '') }}" style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
+                                @error('dob') <p style="color: #e63946; font-size: 0.8rem; margin: 4px 0 0;">{{ $message }}</p> @enderror
+                            </div>
+                            <div style="flex: 1;">
+                                <label style="display: block; font-size: 0.85rem; margin-bottom: 4px; font-weight: 500;" data-translate-key="label-gender">Jenis Kelamin</label>
+                                <div style="display: flex; gap: 15px; margin-top: 10px;">
+                                    <label style="display: flex; align-items: center; gap: 5px; font-size: 0.9rem; cursor: pointer;">
+                                        <input type="radio" name="gender" value="male" {{ old('gender', $user->gender) == 'male' ? 'checked' : '' }} style="accent-color: var(--accent-color);">
+                                        <span data-translate-key="gender-male">Pria</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 5px; font-size: 0.9rem; cursor: pointer;">
+                                        <input type="radio" name="gender" value="female" {{ old('gender', $user->gender) == 'female' ? 'checked' : '' }} style="accent-color: var(--accent-color);">
+                                        <span data-translate-key="gender-female">Wanita</span>
+                                    </label>
+                                </div>
+                                @error('gender') <p style="color: #e63946; font-size: 0.8rem; margin: 4px 0 0;">{{ $message }}</p> @enderror
+                            </div>
                         </div>
 
                         <div style="margin-bottom: 12px;">

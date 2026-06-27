@@ -7,9 +7,15 @@
     <div class="container" style="max-width: 700px; margin: 2rem auto; padding-bottom: 3rem;">
         {{-- Success Header --}}
         <div style="text-align: center; padding: 40px 20px; background-color: var(--card-bg); border: 1px solid var(--subtle-border-color); border-radius: 12px; margin-bottom: 24px;">
-            <div style="font-size: 3rem; margin-bottom: 12px;">✅</div>
-            <h1 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--heading-color); margin: 0 0 8px 0;">Transaksi Berhasil!</h1>
-            <p style="font-size: 0.9rem; opacity: 0.7; margin: 0;">Terima kasih atas pesanan Anda. Berikut ringkasan transaksi.</p>
+            @if($order->payment_status === 'pending')
+                <div style="font-size: 3rem; margin-bottom: 12px;">⏳</div>
+                <h1 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--heading-color); margin: 0 0 8px 0;">Menunggu Pembayaran</h1>
+                <p style="font-size: 0.9rem; opacity: 0.7; margin: 0;">Selesaikan pembayaran pesanan Anda agar dapat segera diproses.</p>
+            @else
+                <div style="font-size: 3rem; margin-bottom: 12px;">✅</div>
+                <h1 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--heading-color); margin: 0 0 8px 0;">Transaksi Berhasil!</h1>
+                <p style="font-size: 0.9rem; opacity: 0.7; margin: 0;">Terima kasih atas pesanan Anda. Berikut ringkasan transaksi.</p>
+            @endif
         </div>
 
         {{-- Order Details --}}
@@ -81,12 +87,42 @@
             </div>
         </div>
 
-        {{-- Back to Home --}}
-        <div style="text-align: center;">
-            <a href="{{ route('home') }}" class="cta-button" style="text-decoration: none; display: inline-block; padding: 12px 30px;">
+        {{-- Back to Home or Pay --}}
+        <div style="text-align: center; display: flex; gap: 10px; justify-content: center;">
+            @if($order->payment_status === 'pending' && $order->snap_token)
+                <button id="pay-button" class="cta-button" style="text-decoration: none; display: inline-block; padding: 12px 30px;">
+                    Bayar Sekarang
+                </button>
+            @endif
+            <a href="{{ route('home') }}" class="cta-button" style="text-decoration: none; display: inline-block; padding: 12px 30px; background: var(--pixel-dark); color: white;">
                 Kembali ke Beranda
             </a>
         </div>
     </div>
 </main>
+
+@if($order->payment_status === 'pending' && $order->snap_token)
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+<script type="text/javascript">
+    document.getElementById('pay-button').onclick = function(){
+        // SnapToken acquired from previous step
+        snap.pay('{{ $order->snap_token }}', {
+            // Optional
+            onSuccess: function(result){
+                alert("Pembayaran berhasil!");
+                window.location.reload();
+            },
+            // Optional
+            onPending: function(result){
+                alert("Menunggu pembayaran Anda!");
+            },
+            // Optional
+            onError: function(result){
+                alert("Pembayaran gagal!");
+            }
+        });
+    };
+</script>
+@endif
+
 @endsection

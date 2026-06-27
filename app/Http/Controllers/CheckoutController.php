@@ -7,9 +7,12 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Services\ShippingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class CheckoutController extends Controller
 {
@@ -18,6 +21,7 @@ class CheckoutController extends Controller
      */
     public function index()
     {
+        /** @var array $cart */
         $cart = session()->get('cart', []);
 
         if (empty($cart)) {
@@ -25,7 +29,7 @@ class CheckoutController extends Controller
         }
 
         // Only authenticated users can checkout
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             return redirect()->guest(route('login'))->with('warning', 'Silakan masuk terlebih dahulu untuk melakukan checkout.');
         }
 
@@ -64,7 +68,8 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Tidak ada produk valid di keranjang.');
         }
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         return view('checkout.index', compact('cartItems', 'subtotal', 'totalItems', 'user'));
     }
@@ -84,6 +89,7 @@ class CheckoutController extends Controller
             'payment_method' => 'required|in:bca_va,mandiri_va,gopay,cod',
         ]);
 
+        /** @var array $cart */
         $cart = session()->get('cart', []);
 
         if (empty($cart)) {
@@ -149,7 +155,7 @@ class CheckoutController extends Controller
 
                 // Create the order
                 $order = Order::create([
-                    'user_id' => auth()->id(),
+                    'user_id' => Auth::id(),
                     'order_number' => $orderNumber,
                     'fullname' => $validated['fullname'],
                     'phone' => $validated['phone'],
@@ -161,7 +167,7 @@ class CheckoutController extends Controller
                     'shipping_cost' => $shippingCost,
                     'total' => $total,
                     'payment_method' => $validated['payment_method'],
-                    'payment_status' => 'paid',
+                    'payment_status' => 'pending', // Set to pending for midtrans
                     'status' => 'processing',
                 ]);
 
@@ -174,6 +180,37 @@ class CheckoutController extends Controller
                     // Decrease product stock
                     $product = $products[$itemData['product_id']];
                     $product->decrement('stock', $itemData['quantity']);
+                }
+                
+                // Configure Midtrans
+                Config::$serverKey = config('midtrans.server_key');
+                Config::$isProduction = config('midtrans.is_production');
+                Config::$isSanitized = config('midtrans.is_sanitized');
+                Config::$is3ds = config('midtrans.is_3ds');
+
+                $params = [
+                    'transaction_details' => [
+                        'order_id' => $order->order_number,
+                        'gross_amount' => $order->total,
+                    ],
+                    'customer_details' => [
+                        'first_name' => $order->fullname,
+                        'email' => Auth::user()->email,
+                        'phone' => $order->phone,
+                    ],
+                ];
+
+                try {
+                    if (app()->environment('testing')) {
+                        $snapToken = 'test_snap_token_' . Str::random(10);
+                    } else {
+                        $snapToken = Snap::getSnapToken($params);
+                    }
+                    $order->snap_token = $snapToken;
+                    $order->save();
+                } catch (\Exception $e) {
+                    Log::error('Midtrans Snap Error: ' . $e->getMessage());
+                    throw new \RuntimeException('Gagal membuat token pembayaran. Silakan coba lagi.');
                 }
 
                 return $order;

@@ -24,6 +24,8 @@ class AuthTest extends TestCase
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'dob' => '2000-01-01',
+            'gender' => 'male',
         ]);
 
         $this->assertAuthenticated();
@@ -45,6 +47,8 @@ class AuthTest extends TestCase
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'dob' => '2000-01-01',
+            'gender' => 'male',
         ]);
 
         $response->assertSessionHasErrors('email');

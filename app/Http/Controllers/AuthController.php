@@ -20,12 +20,16 @@ class AuthController extends Controller
             'name' => 'required|string|max:150',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'dob' => 'required|date',
+            'gender' => 'required|in:male,female',
         ]);
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'dob' => $validated['dob'],
+            'gender' => $validated['gender'],
         ]);
 
         Auth::login($user);

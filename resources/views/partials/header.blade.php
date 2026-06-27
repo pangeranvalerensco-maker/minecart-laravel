@@ -15,8 +15,8 @@
             </div>
             <nav class="header-top-nav">
                 <ul>
-                    <li><a href="#" data-translate-key="about-us-title" class="a-header-top">Tentang Kami</a></li>
-                    <li><a href="#" data-translate-key="help-title" class="a-header-top">Bantuan</a></li>
+                    <li><a href="{{ route('about') }}" data-translate-key="about-us-title" class="a-header-top">Tentang Kami</a></li>
+                    <li><a href="{{ route('help') }}" data-translate-key="help-title" class="a-header-top">Bantuan</a></li>
                     <li class="language-selector-wrapper">
                         <!-- Dropdown untuk memilih bahasa -->
                         <div class="custom-select">
@@ -92,8 +92,8 @@
                     <li><a href="{{ route('products.index') }}" data-translate-key="all-products-title" class="{{ request()->routeIs('products.index') ? 'active' : '' }}">Semua Produk</a></li>
 
                     <!-- Tautan untuk halaman tentang dan bantuan (hanya terlihat di mobile) -->
-                    <li class="mobile-only"><a href="#" data-translate-key="about-us-title">Tentang Kami</a></li>
-                    <li class="mobile-only"><a href="#" data-translate-key="help-title">Bantuan</a></li>
+                    <li class="mobile-only"><a href="{{ route('about') }}" data-translate-key="about-us-title">Tentang Kami</a></li>
+                    <li class="mobile-only"><a href="{{ route('help') }}" data-translate-key="help-title">Bantuan</a></li>
 
                     <!-- Keranjang belanja -->
                     @php
@@ -116,7 +116,31 @@
                                 <a href="{{ route('cart.index') }}" id="cart-preview-view-link" data-translate-key="view-cart-btn">Lihat Keranjang</a>
                             </div>
                             <div id="cart-preview-items">
-                                <!-- Tempat untuk menampilkan item di keranjang (kosong untuk sementara) -->
+                                @php
+                                    $previewItems = array_slice($headerCart, 0, 3, true);
+                                    $previewProductIds = array_keys($previewItems);
+                                    $previewProducts = \App\Models\Product::whereIn('id', $previewProductIds)->get()->keyBy('id');
+                                @endphp
+                                @forelse($previewItems as $productId => $item)
+                                    @if(isset($previewProducts[$productId]))
+                                    <div class="cart-preview-item" style="display: flex; gap: 10px; align-items: center; padding: 10px; border-bottom: 1px solid var(--subtle-border-color);">
+                                        <img src="{{ asset($previewProducts[$productId]->images[0] ?? 'assets/logo-minecart.png') }}" alt="{{ $previewProducts[$productId]->title_id }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                        <div class="cart-preview-details" style="flex-grow: 1;">
+                                            <p class="cart-preview-name" style="margin: 0; font-size: 0.9rem; font-weight: 500;">{{ $previewProducts[$productId]->title_id }}</p>
+                                            <p class="cart-preview-price" style="margin: 5px 0 0; font-size: 0.85rem; color: var(--accent-color);">Rp {{ number_format($previewProducts[$productId]->price, 0, ',', '.') }} x {{ $item['quantity'] }}</p>
+                                        </div>
+                                    </div>
+                                    @endif
+                                @empty
+                                    <div style="padding: 15px; text-align: center; color: var(--text-color); opacity: 0.7;">
+                                        <p class="cart-preview-empty" data-translate-key="cart-empty-message" style="margin: 0;">Keranjang Anda kosong.</p>
+                                    </div>
+                                @endforelse
+                                @if(count($headerCart) > 3)
+                                    <div style="padding: 10px; text-align: center; font-size: 0.85rem; font-style: italic; color: var(--text-color); opacity: 0.8;">
+                                        <p class="cart-preview-more" style="margin: 0;">... dan {{ count($headerCart) - 3 }} barang lainnya</p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </li>
@@ -125,7 +149,7 @@
                             <img id="theme-icon" src="{{ asset('assets/logo-gelap.png') }}" alt="Tema" data-translate-key="theme-link-title">
                         </button>
                     </li>
-                    <li id="mobile-lang-switcher" class="mobile-only"><a href="#">Language</a></li>
+                    <li id="mobile-lang-switcher" class="mobile-only"><a href="#"></a></li>
                 </ul>
             </nav>
 

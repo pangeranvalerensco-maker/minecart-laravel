@@ -10,6 +10,7 @@ class Product extends Model
 {
     protected $fillable = [
         'category_id',
+        'user_id',
         'title_id',
         'title_en',
         'description_id',
@@ -17,7 +18,6 @@ class Product extends Model
         'price',
         'stock',
         'images',
-        'seller_name',
         'address',
         'is_recommended',
     ];
@@ -43,5 +43,13 @@ class Product extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Get the seller (user) that owns the product.
+     */
+    public function seller(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

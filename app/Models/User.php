@@ -26,6 +26,10 @@ class User extends Authenticatable
         'address',
         'city',
         'postal_code',
+        'dob',
+        'gender',
+        'is_seller',
+        'store_name',
     ];
 
     /**
@@ -34,6 +38,14 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get the products for the user (if seller).
+     */
+    public function products()
+    {
+        return $this->hasMany(Product::class);
     }
 
     /**

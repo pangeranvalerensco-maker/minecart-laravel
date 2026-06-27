@@ -1450,6 +1450,9 @@ input.is-invalid {/* Beri border merah pada input yang tidak valid */
 .toast.error {
     background-color: #dc3545;
 }
+.toast.warning {
+    background-color: #f39c12;
+}
 @keyframes slideDown { /* Animasi Munculkan dari Atas */
     from { /* Mulai dari atas */
         transform: translateY(-100%);

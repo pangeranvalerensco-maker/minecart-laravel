@@ -33,6 +33,27 @@
                             @error('password') <p style="color: #e63946; font-size: 0.8rem; margin: 4px 0 0;">{{ $message }}</p> @enderror
                         </div>
 
+                        <div style="margin-bottom: 12px;">
+                            <label for="dob" style="display: block; font-size: 0.85rem; margin-bottom: 4px; font-weight: 500;" data-translate-key="label-dob">Tanggal Lahir</label>
+                            <input type="date" id="dob" name="dob" value="{{ old('dob') }}" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
+                            @error('dob') <p style="color: #e63946; font-size: 0.8rem; margin: 4px 0 0;">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 0.85rem; margin-bottom: 8px; font-weight: 500;" data-translate-key="label-gender">Jenis Kelamin</label>
+                            <div style="display: flex; gap: 15px; margin-bottom: 8px;">
+                                <label style="display: flex; align-items: center; gap: 5px; font-size: 0.9rem; cursor: pointer;">
+                                    <input type="radio" name="gender" value="male" required {{ old('gender') == 'male' ? 'checked' : '' }} style="accent-color: var(--accent-color);">
+                                    <span data-translate-key="gender-male">Pria</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 5px; font-size: 0.9rem; cursor: pointer;">
+                                    <input type="radio" name="gender" value="female" required {{ old('gender') == 'female' ? 'checked' : '' }} style="accent-color: var(--accent-color);">
+                                    <span data-translate-key="gender-female">Wanita</span>
+                                </label>
+                            </div>
+                            @error('gender') <p style="color: #e63946; font-size: 0.8rem; margin: 4px 0 0;">{{ $message }}</p> @enderror
+                        </div>
+
                         <div style="margin-bottom: 20px;">
                             <label for="password_confirmation" style="display: block; font-size: 0.85rem; margin-bottom: 4px; font-weight: 500;">Konfirmasi Password</label>
                             <input type="password" id="password_confirmation" name="password_confirmation" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--subtle-border-color); border-radius: 6px; background: var(--body-bg); color: var(--text-color); font-family: inherit; font-size: 0.9rem; box-sizing: border-box;">
