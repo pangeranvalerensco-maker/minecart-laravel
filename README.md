@@ -1,59 +1,75 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MineCart 🛒
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+MineCart adalah aplikasi web E-Commerce modern dengan fitur lengkap yang dibangun menggunakan **Laravel**. Proyek ini menampilkan desain **Neo-Brutalism** yang unik dengan fitur *toggle* (sakelar) yang mulus untuk beralih ke mode gelap "Mining/Cave", memberikan pengalaman berbelanja yang sangat menarik secara visual.
 
-## About Laravel
+## ✨ Fitur-Fitur
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Autentikasi Multi-Peran**: Login/Pendaftaran pengguna standar, ditambah integrasi **Google OAuth** menggunakan Laravel Socialite.
+- **Fitur Multi-Vendor**: Pengguna dapat meng-upgrade akun mereka untuk membuka toko sendiri (`is_seller`), mengelola produk, dan melihat halaman toko mereka sendiri.
+- **Pengalaman Berbelanja yang Lengkap**:
+  - Keranjang Belanja & *Preview* Keranjang Dinamis
+  - Sistem *Wishlist* (Daftar Keinginan)
+  - Riwayat & Pelacakan Pesanan
+  - Pencarian & Filter Produk *Real-time* (dilengkapi Pagination)
+- **Integrasi Payment Gateway (Gerbang Pembayaran)**: 
+  - **Midtrans**: Untuk proses *checkout* yang aman dan lancar.
+  - **Xendit**: Alternatif integrasi pembayaran (Tahap Pengembangan).
+- **UI/UX Interaktif**:
+  - Estetika Neo-Brutalism dengan garis pinggir yang tegas, tipografi tebal, dan bayangan datar.
+  - Sakelar Mode Gelap / Mode Terang dengan variabel CSS dinamis.
+  - Dukungan Multi-bahasa (Bahasa Indonesia & English).
+- **Sistem Live Chat**: Pesan langsung antara pembeli dan penjual.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🛠️ Teknologi yang Digunakan
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend**: Laravel 10.x / 11.x, PHP 8+
+- **Frontend**: HTML5, Blade Templates, Vanilla CSS (Neo-Brutalism), Vanilla JavaScript
+- **Database**: MySQL
+- **Integrasi Eksternal**: 
+  - Midtrans API (Pembayaran)
+  - Xendit API (Pembayaran)
+  - Google Socialite (Autentikasi)
 
-## Learning Laravel
+## 📂 Struktur Proyek
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- `/app/Http/Controllers` - Logika inti untuk Produk, Keranjang, Checkout, Chat, dan Manajemen Penjual.
+- `/resources/views` - *Template* Blade, menggunakan potongan file yang dapat digunakan ulang (`header`, `footer`) dan *layout* utama.
+- `/public/css` - Lembar gaya (CSS) global, termasuk `style.css` (inti desain Neo-Brutalism) dan `seller.css`.
+- `/docs` - Dokumentasi tambahan untuk referensi sesi AI, *deployment*, dan rencana masa depan.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🚀 Cara Menjalankan di Lokal (Local Development)
 
-## Laravel Sponsors
+1. *Clone repository* ini:
+   ```bash
+   git clone https://github.com/username-anda/minecart-laravel.git
+   cd minecart-laravel
+   ```
+2. Instal dependensi:
+   ```bash
+   composer install
+   npm install && npm run build
+   ```
+3. Pengaturan *Environment*:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+   *Atur file `.env` Anda dengan kredensial Database, kunci Midtrans, dan Client ID Google.*
+4. Jalankan Migration & Seeder:
+   ```bash
+   php artisan migrate --seed
+   ```
+5. Jalankan aplikasi:
+   ```bash
+   php artisan serve
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 📖 Dokumentasi Lanjutan
 
-### Premium Partners
+Untuk panduan teknis yang lebih detail, silakan merujuk ke folder `/docs`:
+- [Rencana Masa Depan & Optimasi Mobile](docs/FUTURE_PLANS.md)
+- [Panduan Hosting & Deploy di CWP](docs/DEPLOYMENT_GUIDE.md)
+- [Panduan Manajemen Produk & Skalabilitas](docs/PRODUCT_MANAGEMENT.md)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+*Dibuat oleh Pangeran Valerensco Rivaldi Hutabarat*

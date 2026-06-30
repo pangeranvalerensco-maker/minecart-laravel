@@ -26,22 +26,33 @@ html {
     --font-body: 'Inter', sans-serif; /* Font untuk teks umum */
 }
 
-body.dark-mode { /* TEMA GELAP ("Cave/Mining") */
-    --body-bg: #181A1B; /* Warna latar belakang untuk mode gelap */
-    --header-top-bg: #101112; /* Warna latar belakang header atas */
-    --header-main-bg: #242628; /* Warna latar belakang header utama */
-    --card-bg: #3A3D41; /* Warna latar belakang kartu produk */
-    --section-bg: #242628; /* Warna latar belakang section */
-    --hero-bg: #101112; /* Warna latar belakang hero section */
+body.dark-mode { /* TEMA GELAP PREMIUM (Slate/Zinc) */
+    --body-bg: #0f172a; /* Slate 900 */
+    --header-top-bg: #020617; /* Slate 950 */
+    --header-main-bg: #1e293b; /* Slate 800 */
+    --card-bg: #1e293b; /* Slate 800 */
+    --section-bg: #0f172a; /* Slate 900 */
+    --hero-bg: #020617; /* Slate 950 */
 
-    --heading-color: #FFFFFF; /* Warna teks judul untuk mode gelap */
-    --text-color: #D1D5DB; /* Warna teks umum untuk mode gelap */
-    --hero-text-color: #FFFFFF; /* Warna teks hero section untuk mode gelap */
-    --light-text-color: #ffffff; /* Warna teks terang untuk kontras di atas latar belakang gelap */
+    --heading-color: #f8fafc; /* Slate 50 */
+    --text-color: #cbd5e1; /* Slate 300 */
+    --hero-text-color: #f8fafc; /* Slate 50 */
+    --light-text-color: #f1f5f9; /* Slate 100 */
 
-    --accent-color: #45E8DA; /* Warna Khas Diamond Minecraft */
-    --accent-text-color: #181A1B; /* Counter untuk teks di accent(jika sebagai background), jika kurang kelihatan*/
-    --subtle-border-color: #4B5563; /* Warna border halus untuk elemen seperti dropdown, tombol, dll. */
+    --accent-color: #38bdf8; /* Sky 400 */
+    --accent-text-color: #020617; /* Slate 950 */
+    --subtle-border-color: #334155; /* Slate 700 */
+}
+
+
+
+.empty-cart-img {
+    filter: grayscale(1);
+    opacity: 0.3;
+}
+body.dark-mode .empty-cart-img {
+    filter: brightness(0) invert(1) grayscale(1);
+    opacity: 0.5;
 }
 
 * {
@@ -59,6 +70,13 @@ body {
     display: flex; 
     flex-direction: column; /* Membuat elemen di dalamnya (header, main, footer) menumpuk ke bawah */
     min-height: 100vh; /* Mengatur tinggi minimal body adalah 100% tinggi layar */
+}
+
+a {
+    transition: color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+a:hover:not(.btn):not(.cta-button) {
+    color: var(--accent-color);
 }
 .container {
     max-width: 1200px; /* Batas maksimal lebar konten */
@@ -85,7 +103,7 @@ main {
 .hamburger-btn span {
     font-family: var(--font-body);
 }
-.hero-content .cta-button {
+.home-carousel-content .cta-button {
     font-family: var(--font-body);
 }
 
@@ -177,18 +195,42 @@ header {
 }
 .header-main {
     padding: 1rem 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    transition: all 0.3s ease;
 }
 .header-main-nav ul {
     list-style: none; /* Menghilangkan tanda titik (bullet) dari daftar */
     display: flex; /* Membuat semua <li> berjajar horizontal */
     align-items: center; /* Menyejajarkan semua item secara vertikal */
-    gap: 25px; /* Jarak antar item menu */
+    gap: 40px; /* Memperlebar jarak antar item menu agar tidak padat */
     margin-bottom: 10px;
 }
 .header-main-nav a {
     text-decoration: none; /* Menghilangkan garis bawah dari link */
     color: var(--text-color);
     font-weight: 500;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    letter-spacing: 0.5px;
+    position: relative;
+    padding-bottom: 4px;
+    transition: color 0.3s ease;
+}
+.header-main-nav a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--accent-color);
+    transform-origin: bottom right;
+    transition: transform 0.3s ease-out;
+}
+.header-main-nav a:hover::after,
+.header-main-nav a.active::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
 }
 .header-main-nav a.active, /* Gaya untuk link aktif */
 .header-main-nav a:hover { /* Gaya saat link di-hover dengan kursor */
@@ -527,7 +569,7 @@ header {
     text-align: left; /* Teks rata kiri */
 }
 #selected-lang-text {
-    color: var(--light-text-color);
+    color: var(--text-color);
     font-size: 0.85rem;
 }
 .arrow-down { /* Ikon panah dropdown kustom */
@@ -535,7 +577,7 @@ header {
     height: 0; /* Membuat segitiga */
     border-left: 5px solid transparent; /* Panah ke kiri */
     border-right: 5px solid transparent; /* Panah ke kanan */
-    border-top: 5px solid var(--light-text-color); /* Warna panah */
+    border-top: 5px solid var(--text-color); /* Warna panah */
 }
 .select-dropdown { /* Menu dropdown yang tersembunyi */
     display: block; /* Membuat dropdown sebagai blok */
@@ -714,8 +756,8 @@ body.dark-mode .dropdown-content button#logout-btn:hover {
 .page-title {
     padding: 20px;
 }
-.hero { /* Atur Ulang .hero untuk menjadi Kontainer Carousel */
-    /* Menjadikan .hero sebagai acuan posisi untuk lapisan di dalamnya */
+.home-carousel { /* Atur Ulang .home-carousel untuk menjadi Kontainer Carousel */
+    /* Menjadikan .home-carousel sebagai acuan posisi untuk lapisan di dalamnya */
     position: relative;
     min-height: 70vh; /* Sesuaikan tinggi */
     color: var(--hero-text-color);
@@ -760,7 +802,7 @@ body.dark-mode .dropdown-content button#logout-btn:hover {
 .carousel-container.slide-3 { /* Posisi slide 3 */
     transform: translateX(-66.666%);
 }
-.hero-overlay { /* Lapisan Overlay Gelap (Agar Teks Terbaca) */
+.home-carousel-overlay { /* Lapisan Overlay Gelap (Agar Teks Terbaca) */
     position: absolute;
     top: 0;
     left: 0;
@@ -769,7 +811,7 @@ body.dark-mode .dropdown-content button#logout-btn:hover {
     background-color: rgba(26, 32, 44, 0.6);
     z-index: 1; /* Posisikan di atas gambar, tapi di bawah teks */
 }
-.hero-content {
+.home-carousel-content {
     /* Posisikan di atas lapisan overlay */
     position: relative;
     /* Gunakan relative agar bisa diberi z-index */
@@ -813,7 +855,7 @@ body.dark-mode .dropdown-content button#logout-btn:hover {
 .carousel-btn.next {
     right: 20px; /* Posisikan tombol kanan di kanan */
 }
-.hero-content h1 {
+.home-carousel-content h1 {
     font-family: var(--font-heading);
     color: var(--hero-text-color);
     font-size: 3rem;
@@ -1192,10 +1234,10 @@ body.dark-mode .skeleton::after {
     .featured-products h2 {
         font-size: 1.4rem; /* Kecilkan font */
     }
-    .hero-content h1 {
+    .home-carousel-content h1 {
         font-size: 1.7rem;
     }
-    .hero-content p {
+    .home-carousel-content p {
         font-size: 0.8rem;
         text-align: center;
     }
@@ -1328,7 +1370,12 @@ body.dark-mode .skeleton::after {
 .form-group input[type="password"],
 .form-group input[type="tel"],
 .form-group input[type="date"],
-.form-group input[type="email"] {
+.form-group input[type="email"],
+.form-group input[type="number"],
+.form-group input[type="file"],
+.form-group select,
+.form-group textarea,
+.form-control {
     width: 100%; /* Membuat kolom input memenuhi seluruh lebar form. */
     padding: 12px;
     border: 1px solid #ddd;
@@ -2755,11 +2802,11 @@ footer {
     .search-bar button {
         width: 100%;
     }
-    .hero-content h1 {
+    .home-carousel-content h1 {
         font-size: 1rem;
         text-align: center;
     }
-    .hero-content p {
+    .home-carousel-content p {
         font-size: 0.75rem;
         text-align: center;
     }
@@ -2977,8 +3024,8 @@ footer {
     .header-main,
     .search-bar,
     .product-grid,
-    .hero,
-    .hero-content,
+    .home-carousel,
+    .home-carousel-content,
     .container,
     .logo,
     .logo img {
@@ -3084,8 +3131,8 @@ footer {
         font-size: 0.5rem;
         padding: 2px 4px;
     }
-    .hero-content h1,
-    .hero-content p {
+    .home-carousel-content h1,
+    .home-carousel-content p {
         font-size: 0.5rem;
         text-align: center;
     }
@@ -3167,4 +3214,343 @@ footer {
     .logo span {
         font-size: 1.2rem !important;
     }
+}
+
+/* ========================================= */
+/* E-COMMERCE NATIONAL STYLE REFACTOR        */
+/* ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 5%;
+    box-sizing: border-box;
+}
+
+.header-top {
+    background: var(--body-bg);
+    border-bottom: 1px solid var(--subtle-border-color);
+    padding: 6px 0;
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+.social-media {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.social-media img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.social-media span {
+    color: var(--text-color);
+}
+
+.a-header-top {
+    text-decoration: none;
+    color: var(--text-color) !important;
+}
+.a-header-top:hover {
+    color: var(--accent-color) !important;
+}
+
+.header-main {
+    padding: 15px 0;
+    box-shadow: none;
+    border-bottom: 1px solid var(--subtle-border-color);
+    background: var(--card-bg);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+.logo img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+.logo span {
+    font-size: 1.5rem !important;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.ecom-cart {
+    display: flex;
+    align-items: center;
+    margin-left: 20px; /* Jauhkan sedikit dari search bar */
+}
+.ecom-cart > a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+.ecom-cart .icon-nav {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+}
+.ecom-cart .cart-counter {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: #e63946;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-weight: bold;
+    line-height: 1;
+    border: 2px solid var(--card-bg);
+}
+
+.ecom-search {
+    display: flex;
+    width: 100%;
+    border: 1.5px solid var(--accent-color);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 42px;
+    transition: box-shadow 0.3s ease;
+}
+
+.ecom-search:focus-within {
+    box-shadow: 0 0 0 3px rgba(32, 178, 170, 0.2);
+}
+
+.ecom-search input {
+    flex-grow: 1;
+    border: none;
+    padding: 0 15px;
+    outline: none;
+    background: transparent;
+    color: var(--text-color);
+    font-family: 'Inter', sans-serif;
+}
+
+.ecom-search button {
+    background: var(--accent-color);
+    border: none;
+    padding: 0 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.ecom-search button:hover {
+    background: #1b9b94;
+}
+
+.ecom-search button img {
+    width: 18px;
+    filter: brightness(0) invert(1);
+}
+
+.v-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--subtle-border-color);
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--subtle-border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.account-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.account-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.account-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    /* margin-top: 10px; dihapus agar tidak ada celah saat di-hover */
+    background: var(--card-bg);
+    min-width: 160px;
+    border: 1px solid var(--subtle-border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    z-index: 100;
+    padding: 8px 0;
+    flex-direction: column;
+}
+
+.account-dropdown-container:hover .account-dropdown-menu {
+    display: flex !important;
+}
+
+.account-dropdown-menu a, .account-dropdown-menu button {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    color: var(--text-color);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+}
+
+.account-dropdown-menu button.logout-btn {
+    color: #e63946;
+}
+
+.account-dropdown-menu a:hover, .account-dropdown-menu button:hover {
+    background: var(--body-bg);
+}
+
+.header-top .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-top-nav ul {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.header-bottom-nav ul, .header-main-nav ul {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+
+.btn-outline {
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    background: transparent;
+}
+.btn-outline:hover {
+    background: rgba(32, 178, 170, 0.1);
+}
+
+.header-bottom {
+    background: var(--card-bg);
+    padding: 10px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.desktop-only {
+    display: flex !important;
+}
+
+@media (max-width: 768px) {
+    .desktop-only {
+        display: none !important;
+    }
+    .header-main .header-container {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .header-search-container {
+        order: 3;
+        width: 100%;
+        max-width: 100%;
+    }
+    .header-bottom {
+        /* display: none; */
+        background: transparent;
+        padding: 0;
+        box-shadow: none;
+        position: static;
+    }
+}
+
+
+
+/* Global Cursor Pointer Fixes */
+button, a, .btn, .cta-button, input[type="submit"], input[type="button"], label { cursor: pointer; }
+
+button, a, .cart-icon-wrapper, .theme-button, input[type='submit'], input[type='button'], .account-dropdown-toggle { cursor: pointer; }
+
+/* Pagination Styling */
+.pagination {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    gap: 5px;
+}
+
+.page-item .page-link {
+    position: relative;
+    display: block;
+    color: var(--text-color);
+    text-decoration: none;
+    background-color: var(--card-bg);
+    border: 1px solid var(--subtle-border-color);
+    padding: 8px 14px;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+    font-weight: 500;
+}
+
+.page-item .page-link:hover {
+    z-index: 2;
+    background-color: var(--body-bg);
+    border-color: var(--subtle-border-color);
+}
+
+.page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.page-item.disabled .page-link {
+    color: var(--text-color);
+    pointer-events: none;
+    background-color: var(--body-bg);
+    border-color: var(--subtle-border-color);
+    opacity: 0.5;
 }
